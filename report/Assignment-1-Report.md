@@ -64,7 +64,30 @@ efficiently store and process the data used by the platform.
 
 ### 2. Platform architecture and component interactions
 
-(TODO)
+The platform consists of two main components: mysimbdp-coredms and mysimbdp-dataingest. In the code folder,
+these components can be found under the directories db and ingest, respectively. The mysimbdp-coredms component is
+implemented as a CockroachDB cluster consisting of three nodes (this number may change later). Its purpose is to
+store and manage tenant data while ensuring fault tolerance.
+
+At this stage, mysimbdp-dataingest is implemented as a TypeScript script that reads data from the tenant’s data source
+and writes it into mysimbdp-coredms using a batching technique. The implementation assumes that the tenant’s data source
+is provided as an SQLite database file. Further technical details of the ingestion
+process are described in the implementation section.
+
+At this stage of the assignment, orchestration tools such as Kubernetes or Docker Swarm are not used.
+In a production environment, such tools would be essential. For example, if the dataset represented a small
+subset of multiple terabytes of data ingested within a single month, the platform would be significantly more
+vulnerable to failures during ingestion without orchestration support.
+
+In this project, the data volume is relatively small (compared to the real data set), which makes Docker Compose
+sufficient for deploying a multi-node database cluster. Nevertheless, orchestration is considered
+a clear area for future improvement and part of the platform’s long-term evolution.
+
+Another component that is not implemented at this stage is event-driven data ingestion. Such a component would
+be useful in scenarios where data ingestion and data consumption are coordinated through events, for example by notifying
+consumers about ingestion progress. For this project, a batch-oriented ingestion approach is sufficient,
+and data consumers directly query the database after ingestion.
+
 
 ### 3. Fault tolerance and single point of failure
 
