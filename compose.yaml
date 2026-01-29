@@ -1,20 +1,49 @@
+version: "3.9"
 
 services:
-  ingest:
-    build: ./code/ingest
-    environment:
-      - WORKERS=10
+  cockroach-1:
+    image: cockroachdb/cockroach:v23.1.11 #specific version, just in case there will be problems in future
+    hostname: cockroach-1
+    command: >
+      start --insecure
+      --listen-addr=:26257              #inner cluster communication
+      --advertise-addr=cockroach-1:26257   #address for other nodes to connect
+      --http-addr=0.0.0.0:8080            # admin panel
+      --join=cockroach-1,cockroach-2,cockroach-3
+      --store=/cockroach/cockroach-data
+    ports:
+      - "26257:26257"
+      - "8080:8080"
     volumes:
-      - ./tenant:/tenant:ro
-#    depends_on:
-#      - cockroach-db
+      - crdb1:/cockroach/cockroach-data
 
+  cockroach-2:
+    image: cockroachdb/cockroach:v23.1.11
+    hostname: cockroach-2
+    command: >
+      start --insecure
+      --listen-addr=:26257
+      --advertise-addr=cockroach-2:26257
+      --http-addr=0.0.0.0:8080
+      --join=cockroach-1,cockroach-2,cockroach-3
+      --store=/cockroach/cockroach-data
+    volumes:
+      - crdb2:/cockroach/cockroach-data
 
-#  cockroach-db:
-#    image: cockroachdb/cockroach:latest
-#    ports:
-#      - "26257:26257"
-#      - "8080:8080"
-#    command: start-single-node --insecure
-#    volumes:
-#      - "${PWD}/cockroach-data/crdb:/cockroach/cockroach-data"
+  cockroach-3:
+    image: cockroachdb/cockroach:v23.1.11
+    hostname: cockroach-3
+    command: >
+      start --insecure
+      --listen-addr=:26257
+      --advertise-addr=cockroach-3:26257
+      --http-addr=0.0.0.0:8080
+      --join=cockroach-1,cockroach-2,cockroach-3
+      --store=/cockroach/cockroach-data
+    volumes:
+      - crdb3:/cockroach/cockroach-data
+
+volumes:
+  crdb1:
+  crdb2:
+  crdb3:
