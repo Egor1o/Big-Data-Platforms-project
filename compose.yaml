@@ -46,6 +46,19 @@ services:
     volumes:
       - crdb3:/cockroach/cockroach-data
 
+  flyway:
+    image: flyway/flyway:10
+    depends_on:
+      - cockroach-1
+    volumes:
+      - ./code/migrations:/flyway/sql:ro
+    command: >
+      -url=jdbc:postgresql://cockroach-1:26257/defaultdb
+      -user=root
+      -password=
+      -connectRetries=60
+      migrate
+
 
   ingest-1:
     build: ./code/ingest

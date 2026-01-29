@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-
+import {calculateRange} from "./utils.js";
 const db = new Database("../../tenant/database.sqlite", { readonly: true });
 
 const stmt = db.prepare(`
@@ -35,11 +35,16 @@ function ingestData(rangeStart:number, rangeEnd:number) {
     db.close();
 }
 
-const RANGE_START = 1430438400;
-const RANGE_END = 1433020399;
+const workersTotal = process.env.WORKERS ? parseInt(process.env.WORKERS) : null;
+if(workersTotal === null) throw new Error("WORKERS_TOTAL env var not set");
 
+const workerIdEnv = process.env.WORKER_ID;
+if(!workerIdEnv) throw new Error("WORKER_ID env var not set");
 
-ingestData(RANGE_START, RANGE_END);
+const workerId = parseInt(workerIdEnv)
+const {rangeStart, rangeEnd} = calculateRange(workerId, workersTotal);
+
+ingestData(rangeStart, rangeEnd);
 
 
 

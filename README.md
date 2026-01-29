@@ -15,3 +15,8 @@ docker exec -it roach-1 ./cockroach init --insecure
 ```sh 
 docker compose up ingest-1 ingest-2 ingest-3 ingest-4 ingest-5 ingest-6 ingest-7 ingest-8 ingest-9 ingest-10
 ``` 
+
+
+
+### Cluster's monitoring
+http://localhost:8080/#/overview/list
