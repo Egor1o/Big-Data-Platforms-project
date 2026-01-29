@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import {calculateRange} from "./utils.js";
+import {calculateRange, mapRowToComment} from "./utils.js";
 import {Client} from "pg";
 const db = new Database("../../tenant/database.sqlite", { readonly: true });
 
@@ -19,31 +19,73 @@ const client = new Client({
 
 await client.connect()
 
-const flushBatch = (batch: any[]) => {
-    batch.splice(0,batch.length)
+const flushBatch = async (batch: any[]) => {
+    if (batch.length === 0) return;
+
+    const valuesPlaceholders = batch.map((_, index) => {
+        const offset = index * 22;
+        return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7}, $${offset + 8}, $${offset + 9}, $${offset + 10}, $${offset + 11}, $${offset + 12}, $${offset + 13}, $${offset + 14}, $${offset + 15}, $${offset + 16}, $${offset + 17}, $${offset + 18}, $${offset + 19}, $${offset + 20}, $${offset + 21}, $${offset + 22})`;
+    }).join(', ');
+
+    const values = batch.flatMap(row => [
+        row.id,
+        row.name,
+        row.link_id,
+        row.parent_id,
+        row.subreddit_id,
+        row.subreddit,
+        row.author,
+        row.author_flair_text,
+        row.author_flair_css_class,
+        row.body,
+        row.created_utc,
+        row.retrieved_on,
+        row.ups,
+        row.downs,
+        row.score,
+        row.score_hidden,
+        row.gilded,
+        row.archived,
+        row.edited,
+        row.controversiality,
+        row.distinguished,
+        row.removal_reason
+    ]);
+
+    const insertQuery = `
+        INSERT INTO comments (
+            id, name, link_id, parent_id, subreddit_id, subreddit,
+            author, author_flair_text, author_flair_css_class,
+            body, created_utc, retrieved_on,
+            ups, downs, score, score_hidden,
+            gilded, archived, edited, controversiality,
+            distinguished, removal_reason
+        ) VALUES ${valuesPlaceholders}
+        ON CONFLICT (id) DO NOTHING
+    `;
+
+    try {
+        await client.query(insertQuery, values);
+        console.log(`Inserted ${batch.length} comments`);
+    } catch (error) {
+        console.error('Error inserting batch:', error);
+        throw error;
+    }
 }
 
 async function ingestData(rangeStart:number, rangeEnd:number) {
     for (const row of stmt.iterate(rangeStart, rangeEnd)) {
 
-        //console.log(row);
-        batch.push(row);
+        batch.push(mapRowToComment(row));
 
         if (batch.length >= BATCH_SIZE) {
-            flushBatch(batch);
-            const res = await client.query(`
-              SELECT id, author, subreddit, created_utc
-              FROM comments
-              ORDER BY created_utc
-              LIMIT 5
-            `);
-            console.log('the result', res.rows);
+            await flushBatch(batch);
             batch.length = 0;
         }
     }
 
     if (batch.length > 0) {
-        flushBatch(batch);
+        await flushBatch(batch);
     }
 
     db.close();
