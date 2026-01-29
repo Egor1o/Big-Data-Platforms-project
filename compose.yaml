@@ -65,6 +65,7 @@ services:
     environment:
       - WORKER_ID=0
       - WORKERS=10
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
     volumes:
       - ./tenant:/tenant:ro
     depends_on:
@@ -75,6 +76,7 @@ services:
     environment:
       - WORKER_ID=1
       - WORKERS=10
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
     volumes:
       - ./tenant:/tenant:ro
     depends_on:
@@ -85,6 +87,7 @@ services:
     environment:
       - WORKER_ID=2
       - WORKERS=10
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
     volumes:
       - ./tenant:/tenant:ro
     depends_on:
@@ -95,6 +98,7 @@ services:
     environment:
       - WORKER_ID=3
       - WORKERS=10
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
     volumes:
       - ./tenant:/tenant:ro
     depends_on:
@@ -105,6 +109,7 @@ services:
     environment:
       - WORKER_ID=4
       - WORKERS=10
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
     volumes:
       - ./tenant:/tenant:ro
     depends_on:
@@ -115,6 +120,7 @@ services:
     environment:
       - WORKER_ID=5
       - WORKERS=10
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
     volumes:
       - ./tenant:/tenant:ro
     depends_on:
@@ -125,6 +131,7 @@ services:
     environment:
       - WORKER_ID=6
       - WORKERS=10
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
     volumes:
       - ./tenant:/tenant:ro
     depends_on:
@@ -135,6 +142,7 @@ services:
     environment:
       - WORKER_ID=7
       - WORKERS=10
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
     volumes:
       - ./tenant:/tenant:ro
     depends_on:
@@ -145,6 +153,7 @@ services:
     environment:
       - WORKER_ID=8
       - WORKERS=10
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
     volumes:
       - ./tenant:/tenant:ro
     depends_on:
@@ -155,6 +164,7 @@ services:
     environment:
       - WORKER_ID=9
       - WORKERS=10
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
     volumes:
       - ./tenant:/tenant:ro
     depends_on:
