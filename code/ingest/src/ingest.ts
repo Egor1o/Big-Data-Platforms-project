@@ -35,8 +35,9 @@ function ingestData(rangeStart:number, rangeEnd:number) {
     db.close();
 }
 
-const RANGE_START = 1420070400;
-const RANGE_END = 1433116800;
+const RANGE_START = 1430438400;
+const RANGE_END = 1433020399;
+
 
 ingestData(RANGE_START, RANGE_END);
 

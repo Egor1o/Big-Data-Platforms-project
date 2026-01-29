@@ -8,7 +8,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node ingest.ts"
+    "dev": "ts-node src/ingest.ts",
+    "build": "tsc",
+    "start": "node dist/ingest.js"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",
