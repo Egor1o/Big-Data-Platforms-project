@@ -4,11 +4,12 @@ services:
   cockroach-1:
     image: cockroachdb/cockroach:v23.1.11 #specific version, just in case there will be problems in future
     hostname: cockroach-1
+    container_name: roach-1
     command: >
       start --insecure
-      --listen-addr=:26257              #inner cluster communication
-      --advertise-addr=cockroach-1:26257   #address for other nodes to connect
-      --http-addr=0.0.0.0:8080            # admin panel
+      --listen-addr=:26257              
+      --advertise-addr=cockroach-1:26257   
+      --http-addr=0.0.0.0:8080            
       --join=cockroach-1,cockroach-2,cockroach-3
       --store=/cockroach/cockroach-data
     ports:
@@ -20,6 +21,7 @@ services:
   cockroach-2:
     image: cockroachdb/cockroach:v23.1.11
     hostname: cockroach-2
+    container_name: roach-2
     command: >
       start --insecure
       --listen-addr=:26257
@@ -33,6 +35,7 @@ services:
   cockroach-3:
     image: cockroachdb/cockroach:v23.1.11
     hostname: cockroach-3
+    container_name: roach-3
     command: >
       start --insecure
       --listen-addr=:26257
@@ -42,6 +45,107 @@ services:
       --store=/cockroach/cockroach-data
     volumes:
       - crdb3:/cockroach/cockroach-data
+
+
+  ingest-1:
+    build: ./code/ingest
+    environment:
+      - WORKER_ID=0
+      - WORKERS=10
+    volumes:
+      - ./tenant:/tenant:ro
+    depends_on:
+      - cockroach-1
+
+  ingest-2:
+    build: ./code/ingest
+    environment:
+      - WORKER_ID=1
+      - WORKERS=10
+    volumes:
+      - ./tenant:/tenant:ro
+    depends_on:
+      - cockroach-1
+
+  ingest-3:
+    build: ./code/ingest
+    environment:
+      - WORKER_ID=2
+      - WORKERS=10
+    volumes:
+      - ./tenant:/tenant:ro
+    depends_on:
+      - cockroach-1
+
+  ingest-4:
+    build: ./code/ingest
+    environment:
+      - WORKER_ID=3
+      - WORKERS=10
+    volumes:
+      - ./tenant:/tenant:ro
+    depends_on:
+      - cockroach-1
+
+  ingest-5:
+    build: ./code/ingest
+    environment:
+      - WORKER_ID=4
+      - WORKERS=10
+    volumes:
+      - ./tenant:/tenant:ro
+    depends_on:
+      - cockroach-1
+
+  ingest-6:
+    build: ./code/ingest
+    environment:
+      - WORKER_ID=5
+      - WORKERS=10
+    volumes:
+      - ./tenant:/tenant:ro
+    depends_on:
+      - cockroach-1
+
+  ingest-7:
+    build: ./code/ingest
+    environment:
+      - WORKER_ID=6
+      - WORKERS=10
+    volumes:
+      - ./tenant:/tenant:ro
+    depends_on:
+      - cockroach-1
+
+  ingest-8:
+    build: ./code/ingest
+    environment:
+      - WORKER_ID=7
+      - WORKERS=10
+    volumes:
+      - ./tenant:/tenant:ro
+    depends_on:
+      - cockroach-1
+
+  ingest-9:
+    build: ./code/ingest
+    environment:
+      - WORKER_ID=8
+      - WORKERS=10
+    volumes:
+      - ./tenant:/tenant:ro
+    depends_on:
+      - cockroach-1
+
+  ingest-10:
+    build: ./code/ingest
+    environment:
+      - WORKER_ID=9
+      - WORKERS=10
+    volumes:
+      - ./tenant:/tenant:ro
+    depends_on:
+      - cockroach-1
 
 volumes:
   crdb1:
