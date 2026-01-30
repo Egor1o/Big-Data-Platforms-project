@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import {calculateRange, mapRowToComment} from "./utils.js";
 import {Client} from "pg";
+import {createSqlIngestQueryAndValues, getClient} from "./database.js";
 const db = new Database("../../tenant/database.sqlite", { readonly: true });
 
 const stmt = db.prepare(`
@@ -13,65 +14,57 @@ const stmt = db.prepare(`
 const BATCH_SIZE = 500;
 let batch: any[] = [];
 
-const client = new Client({
-    connectionString: process.env.DATABASE_URL
-})
 
-await client.connect()
+const sleep = (ms: number) =>
+    new Promise(resolve => setTimeout(resolve, ms));
 
-const flushBatch = async (batch: any[]) => {
+const RETRYABLE_ERRORS = new Set([
+    '57P01',
+    '40001',
+    '08006',
+    '08003',
+]);
+
+const MAX_RETRIES = 10;
+
+export const flushBatch = async (batch: any[]) => {
     if (batch.length === 0) return;
 
-    const valuesPlaceholders = batch.map((_, index) => {
-        const offset = index * 22;
-        return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7}, $${offset + 8}, $${offset + 9}, $${offset + 10}, $${offset + 11}, $${offset + 12}, $${offset + 13}, $${offset + 14}, $${offset + 15}, $${offset + 16}, $${offset + 17}, $${offset + 18}, $${offset + 19}, $${offset + 20}, $${offset + 21}, $${offset + 22})`;
-    }).join(', ');
+    const { query, values } = createSqlIngestQueryAndValues(batch);
 
-    const values = batch.flatMap(row => [
-        row.id,
-        row.name,
-        row.link_id,
-        row.parent_id,
-        row.subreddit_id,
-        row.subreddit,
-        row.author,
-        row.author_flair_text,
-        row.author_flair_css_class,
-        row.body,
-        row.created_utc,
-        row.retrieved_on,
-        row.ups,
-        row.downs,
-        row.score,
-        row.score_hidden,
-        row.gilded,
-        row.archived,
-        row.edited,
-        row.controversiality,
-        row.distinguished,
-        row.removal_reason
-    ]);
+    let attempt = 0;
 
-    const insertQuery = `
-        INSERT INTO comments (
-            id, name, link_id, parent_id, subreddit_id, subreddit,
-            author, author_flair_text, author_flair_css_class,
-            body, created_utc, retrieved_on,
-            ups, downs, score, score_hidden,
-            gilded, archived, edited, controversiality,
-            distinguished, removal_reason
-        ) VALUES ${valuesPlaceholders}
-        ON CONFLICT (id) DO NOTHING
-    `;
+    while (true) {
+        let client: Client | null = null;
 
-    try {
-        await client.query(insertQuery, values);
-        console.log(`Inserted ${batch.length} comments`);
-    } catch (error) {
-        console.error('Error inserting batch:', error);
-        throw error;
+        try {
+            client = await getClient();
+            await client.query(query, values);
+            console.log(`Inserted ${batch.length} comments`);
+            return;
+        } catch (err: any) {
+            attempt++;
+
+            const code = err?.code;
+            console.error(`Insert failed (attempt ${attempt}, code=${code})`);
+
+            if (RETRYABLE_ERRORS.has(code) && attempt < MAX_RETRIES) {
+                await sleep(200 * Math.pow(2, attempt));
+                continue;
+            }
+
+            throw err;
+        } finally {
+            if (client) {
+                try {
+                    await client.end();
+                } catch {
+                }
+            }
+        }
     }
-}
+};
+
 
 async function ingestData(rangeStart:number, rangeEnd:number) {
     for (const row of stmt.iterate(rangeStart, rangeEnd)) {

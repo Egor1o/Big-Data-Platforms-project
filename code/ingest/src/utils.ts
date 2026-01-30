@@ -8,6 +8,15 @@ export const calculateRange = (workerId: number, workersTotal: number) => {
     return { rangeStart, rangeEnd };
 };
 
+//TODO check the real value some rows may be crrupted.
+function toBoolean(value: any): boolean {
+    if (value === true || value === false) return value;
+    if (value === null) return false;
+    if (typeof value === "number") return true;
+    if (typeof value === "string") return value === "true";
+    return false;
+}
+
 export const mapRowToComment = (row: any) => ({
     id: row.id,
     name: row.name,
@@ -16,19 +25,20 @@ export const mapRowToComment = (row: any) => ({
     subreddit_id: row.subreddit_id,
     subreddit: row.subreddit,
     author: row.author,
-    author_flair_text: row.author_flair_text || null,
-    author_flair_css_class: row.author_flair_css_class || null,
+    author_flair_text: row.author_flair_text,
+    author_flair_css_class: row.author_flair_css_class,
     body: row.body,
     created_utc: row.created_utc,
     retrieved_on: row.retrieved_on,
-    ups: row.ups || 0,
-    downs: row.downs || 0,
-    score: row.score || 0,
-    score_hidden: row.score_hidden === 1 || row.score_hidden,
-    gilded: row.gilded || 0,
-    archived: row.archived === 1 || row.archived,
-    edited: row.edited === 1 || row.edited,
-    controversiality: row.controversiality || 0,
-    distinguished: row.distinguished || null,
-    removal_reason: row.removal_reason || null
-});
+    ups: row.ups,
+    downs: row.downs,
+    score: row.score,
+
+    score_hidden: toBoolean(row.score_hidden),
+    gilded: row.gilded ?? 0,
+    archived: toBoolean(row.archived),
+    edited: toBoolean(row.edited),
+    controversiality: row.controversiality ?? 0,
+    distinguished: row.distinguished,
+    removal_reason: row.removal_reason,
+})
