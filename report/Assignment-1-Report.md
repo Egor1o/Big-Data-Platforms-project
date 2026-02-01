@@ -170,7 +170,18 @@ fields store information about the subreddit, author, timestamps, and engagement
 
 ### 2. Data partitioning and replication strategy
 
-(TODO)
+Partitioning and replication strategies are left to CockroachDB, as it is able to perform them efficiently at the
+database layer. CockroachDB automatically partitions tables into key ranges based on the primary key and distributes
+these ranges across available nodes. As data volume grows, ranges are split and rebalanced
+without requiring changes in application logic.
+
+Replication is handled at the same level by maintaining multiple replicas of each range according to the configured
+replication factor. This allows data to be evenly distributed across nodes while providing fault tolerance and strong
+consistency through quorum-based replication. By delegating partitioning and replication to CockroachDB, the platform
+avoids manual sharding logic and benefits from scalable performance and resilience with minimal operational complexity.
+
+As here I'm referring to the CockroachDB own characteristics, here is the resource, that I got an inspiration from.
+https://www.cockroachlabs.com/blog/automated-rebalance-and-repair
 
 ### 3. Data ingestion design and consistency assumptions
 
@@ -185,10 +196,10 @@ In other words, all metrics are written to the same CockroachDB cluster that is 
 not consider this a problem, since the volume of metrics data is small and write operations are infrequent, making this
 workload trivial for CockroachDB to handle.
 
-I will present the performance results in a table showing evaluations for 1, 5, and 10 ingest workers over 7-9-minute
-(sliced by about 2-3 minutes each) period. The metrics will be further divided into two subcategories: all nodes up, 
-and one node down. All values will be averaged, as the goal is not to analyze individual ingestors
-but rather to evaluate the overall write performance of the system.
+I will present the performance results in a table showing evaluations for 1, 5, and 10 ingest workers.
+The metrics are: throughput, response time (Latency) and their 95/99 percentiles. 
+All values will be averaged, as the goal is not to analyze individual ingestors but rather to evaluate the overall
+write performance of the system.
 
 I will also add graphs in my report, since I have added a configuration to Grafana to visualize the metrics data. I think
 that visualization is the best way for us humans to understand the result and even though it is not mandatory, actually
