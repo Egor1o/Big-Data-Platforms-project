@@ -118,12 +118,32 @@ retry logic implemented by the ingest workers.
 
 ### 4. Data replication and number of nodes
 
-(TODO)
+For mysimbdp-coredms, a replication factor of three is chosen as the predefined data replication level.
+This means that each data range is stored as three replicas across different database nodes. This replication level
+provides a balance between fault tolerance and resource overhead.
+
+With a replication factor of three, CockroachDB requires a quorum of two replicas to commit write operations.
+As a result, the system can tolerate the failure of a single data node while continuing to operate, thereby preventing
+a single point of failure. To support this replication level, at least three data nodes are required in the cluster.
+
+If two out of three nodes become unavailable, the cluster can no longer reach a quorum and write operations are halted
+to preserve data consistency. This behavior is an intentional design choice that prioritizes strong consistency over
+availability under multiple simultaneous failures.
 
 ### 5. Deployment assumptions for data ingestion
 
-(TODO)
+The platform is assumed to be hosted within a single data center environment where mysimbdp-coredms is
+deployed as a multi-node cluster. Tenant data sources are assumed to be externally owned and made accessible to
+mysimbdp-dataingest. In this implementation, tenant data is provided as a local SQLite database file.
 
+The mysimbdp-dataingest component is deployed close to mysimbdpdp-coredms within the same network environment.
+This placement minimizes network latency and improves write throughput during data ingestion, which is important for
+large batch workloads. It is assumed that tenants can transfer their data to a location reachable by mysimbdp-dataingest.
+
+The main advantage of this deployment is higher ingestion performance due to low-latency communication with the
+database. A potential drawback is increased data transfer latency for tenants located far from the data center,
+which could be addressed in future deployments by running mysimbdp-dataingest in multiple locations.
+    
 ## Part 2 – Implementation
 
 ### 1. Tenant data schema
