@@ -148,7 +148,25 @@ which could be addressed in future deployments by running mysimbdp-dataingest in
 
 ### 1. Tenant data schema
 
-(TODO)
+To implement the tenant schema, I used Flyway migrations to automate the process and make it easier for the reader to understand.
+
+The tenant data schema is defined as a single table named ```comments```, which maps the structure of the source
+data. The schema is designed as a single table with one row per comment to simplify
+ingestion.
+
+To ensure data consistency, I implemented a mapper in utils.ts. As mentioned in part 1's section 1, the stored data is
+for analytics and monitoring purposes. Each comment is atomic and stored as a single row in the comments table in the database.
+(Simplicity is prioritized).
+
+I did not choose to implement a normalized schema, as normalization would increase
+the complexity of the ingestion process by requiring inserts into multiple related tables. In addition, normalized
+schemas would make analytical queries more expensive due to the need for joins across tables. Shortly, since the data is
+intended for large-scale ingestion and analytical workloads, a denormalized schema was chosen to prioritize simplicity
+and ingestion efficiency.
+
+The schema is designed to capture both the content of a comment and its associated metadata. Each comment is uniquely
+identified by the Reddit comment id, which is used as the primary key to prevent duplicate ingestion. Additional
+fields store information about the subreddit, author, timestamps, and engagement metrics such as scores and upvotes.
 
 ### 2. Data partitioning and replication strategy
 
