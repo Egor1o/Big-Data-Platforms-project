@@ -192,27 +192,26 @@ but rather to evaluate the overall write performance of the system.
 
 I will also add graphs in my report, since I have added a configuration to Grafana to visualize the metrics data. I think
 that visualization is the best way for us humans to understand the result and even though it is not mandatory, actually
-for me, it was. So, please enjoy it too.
+for me, it was. So, please enjoy it too. Snapshots of the graphs are included in this folder. 
 
-As an observation, during the tests with one ingestor and 3 nodes up, all the data is written in about 7-9 minutes, so
-take it into account when you test it by yourself.
+Please note that my configuration works in such a way that each worker is assigned a specific time range.
+This is done to divide workers into intervals. As a result, when running with 1 or 5 workers, not all data is actually
+written to the database. However, when using 10 workers, all data is ingested.
 
-| Ingest Workers | Nodes Status | Avg. Throughput (rows/s) | Avg. Latency (ms) | P95 Latency (ms) | P99 Latency (ms) |
-|----------------|--------------|--------------------------|-------------------|------------------|------------------|
-| 1              | All up       | 10900                    | 37                | 163              | 333              |
-| 1              | One down     | 14800                    | 25                | 33               | 42               |
-| 5              | All up       | 700                      | 250               | 360              | 450              |
-| 5              | One down     | 450                      | 400               | 580              | 700              |
-| 10             | All up       | 1200                     | 300               | 430              | 550              |
-| 10             | One down     | 800                      | 500               | 720              | 900              |
+As an additional note, I run everything on my own machine with the following specs: macOS, Apple M3 Pro, 32 GB RAM.
+
+| Ingest Workers | Avg. Throughput (rows/s) | Avg. Latency (ms) | P95 Latency (ms) | P99 Latency (ms) |
+|----------------|--------------------------|-------------------|------------------|------------------|
+| 1              | 10900                    | 37                | 163              | 333              |
+| 5              | 29900                    | 67                | 89               | 400              |
+| 10             | 40550                    | 85                | 148              | 206              |
 
 
-
-1. All nodes up, 1 ingestor
-![Screenshot 2026-02-01 at 23.45.05.png](../../Desktop/Screenshot%202026-02-01%20at%2023.45.05.png)
-
-2. 1 node down (later back), 1 ingestor
-![Screenshot 2026-02-01 at 23.47.53.png](../../Desktop/Screenshot%202026-02-01%20at%2023.47.53.png)
+Here I would like to add that I tested the setup by shutting down nodes and bringing them back up. Despite my
+expectations that reassigning the hierarchy in the DB cluster would take time, especially toward the end of the insertion
+process in the 10-ingestors case—this did not happen. There was a barely noticeable drop in performance, and it was not
+sufficient to stop the database from operating. Bringing the node instance back online did not seem to affect the
+situation either positively or negatively.
 
 
 ### 5. Data consumption and query performance
