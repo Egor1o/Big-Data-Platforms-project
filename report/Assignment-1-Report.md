@@ -102,11 +102,11 @@ node while continuing to operate. If the failed node was the leader for a given 
 reassigned to another replica. However, if two out of three nodes become unavailable, the database can no longer achieve
 a quorum, and write operations are halted until at least one node is restored or a new node is added to the cluster.
 
-The second layer of fault tolerance is implemented at the ingestion level. Ingest workers continuously attempt to write
-data to the database and include retry logic to handle transient failures. When a write operation fails due to temporary
-issues such as leader election or node unavailability, the ingest workers retry the operation using an exponential
-backoff strategy based on a 2ⁿ delay. After a predefined maximum number of retries,
-the ingest process stops and reports a failure.
+In addition to the database-level fault tolerance, the second layer of fault tolerance is implemented at the ingestion
+level. Ingest workers continuously attempt to write data to the database and include retry logic to handle transient
+failures. When a write operation fails due to temporary issues such as leader election or node unavailability,
+the ingest workers retry the operation using an exponential backoff strategy based on a 2ⁿ delay. After a predefined
+maximum number of retries, the ingest process stops and reports a failure.
 
 This implementation has definitely potential improvements. If the database remains unavailable for a longer period and the ingest
 workers exhaust their retry attempts, both the database and the ingest processes must be restarted manually.
