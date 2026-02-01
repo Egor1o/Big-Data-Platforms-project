@@ -186,8 +186,8 @@ not consider this a problem, since the volume of metrics data is small and write
 workload trivial for CockroachDB to handle.
 
 I will present the performance results in a table showing evaluations for 1, 5, and 10 ingest workers over 7-9-minute
-(sliced by about 2-3 minutes each) period. The metrics will be further divided into three subcategories: all nodes up, 
-one node down, and one node back up. All values will be averaged, as the goal is not to analyze individual ingestors
+(sliced by about 2-3 minutes each) period. The metrics will be further divided into two subcategories: all nodes up, 
+and one node down. All values will be averaged, as the goal is not to analyze individual ingestors
 but rather to evaluate the overall write performance of the system.
 
 I will also add graphs in my report, since I have added a configuration to Grafana to visualize the metrics data. I think
@@ -199,15 +199,12 @@ take it into account when you test it by yourself.
 
 | Ingest Workers | Nodes Status | Avg. Throughput (rows/s) | Avg. Latency (ms) | P95 Latency (ms) | P99 Latency (ms) |
 |----------------|--------------|--------------------------|-------------------|------------------|------------------|
-| 1              | All up       | 150                      | 200               | 280              | 350              |
-| 1              | One down     | 100                      | 300               | 420              | 520              |
-| 1              | One back up  | 140                      | 220               | 300              | 380              |
+| 1              | All up       | 10900                    | 37                | 163              | 333              |
+| 1              | One down     | 14800                    | 25                | 33               | 42               |
 | 5              | All up       | 700                      | 250               | 360              | 450              |
 | 5              | One down     | 450                      | 400               | 580              | 700              |
-| 5              | One back up  | 650                      | 270               | 380              | 470              |
 | 10             | All up       | 1200                     | 300               | 430              | 550              |
 | 10             | One down     | 800                      | 500               | 720              | 900              |
-| 10             | One back up  | 1100                     | 320               | 460              | 580              |
 
 
 
