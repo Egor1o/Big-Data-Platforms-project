@@ -37,9 +37,14 @@ docker compose up ingest-1
 If you want to test less or more amount of workers, just remove unnecessary services from the command above.
 
 ### Notice
-Due to the structure of the project, changes in the core code are not reflected in the running containers. Therefore,
+Before going do, please note the following:
+
+1. Due to the structure of the project, changes in the core code are not reflected in the running containers. Therefore,
 if you modify any part of the code and want to see the changes, you need to rebuild the containers by adding the --build
 flag to the end of the docker-compose command.
+2. If you remove the main node connected to Grafana (cockroach-1), Grafana will lose connection to the database. As stated
+earlier in reality database is still up and ingestors are working, but Grafana will not be able to show any metrics until you
+reconnect it to any of the running nodes. So, prefer to close nodes that are not connected to Grafana first.
 
 ### Cluster's monitoring
 When your CockroachDB cluster is up, you can see the state of one here: http://localhost:8080/#/overview/list
