@@ -91,7 +91,30 @@ and data consumers directly query the database after ingestion.
 
 ### 3. Fault tolerance and single point of failure
 
-(TODO)
+Currently, the platform’s fault tolerance is implemented at two layers. The primary layer is
+the CockroachDB cluster itself. CockroachDB follows a consensus-based replication model that can be seen as
+democratic decision process. Each data range has a leader replica and multiple follower replicas. The leader is
+responsible for coordinating read and write operations and for replicating changes to the followers.
+
+For any write operation to be committed, a quorum of replicas must agree on the operation. With a replication
+factor of three, a quorum consists of two replicas. As a result, the database can tolerate the failure of a single
+node while continuing to operate. If the failed node was the leader for a given range, leadership is automatically
+reassigned to another replica. However, if two out of three nodes become unavailable, the database can no longer achieve
+a quorum, and write operations are halted until at least one node is restored or a new node is added to the cluster.
+
+The second layer of fault tolerance is implemented at the ingestion level. Ingest workers continuously attempt to write
+data to the database and include retry logic to handle transient failures. When a write operation fails due to temporary
+issues such as leader election or node unavailability, the ingest workers retry the operation using an exponential
+backoff strategy based on a 2ⁿ delay. After a predefined maximum number of retries,
+the ingest process stops and reports a failure.
+
+This implementation has definitely potential improvements. If the database remains unavailable for a longer period and the ingest
+workers exhaust their retry attempts, both the database and the ingest processes must be restarted manually.
+In production systems, orchestration tools such as Kubernetes would address the issue by automatically
+restarting failed components and rescheduling workloads. In this platform, fault tolerance is therefore
+provided at two levels: the database-level consensus and replication mechanism, and the application-level
+retry logic implemented by the ingest workers.
+
 
 ### 4. Data replication and number of nodes
 
