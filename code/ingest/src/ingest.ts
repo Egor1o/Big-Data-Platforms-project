@@ -91,6 +91,7 @@ async function ingestData(rangeStart:number, rangeEnd:number, workerId:number) {
     }
 
     db.close();
+    console.log('Ingestion complete', workerId);
 }
 
 const workersTotal = process.env.WORKERS ? parseInt(process.env.WORKERS) : null;
