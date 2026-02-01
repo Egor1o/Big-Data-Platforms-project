@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   cockroach-1:
-    image: cockroachdb/cockroach:v23.1.11 #specific version, just in case there will be problems in future
+    image: cockroachdb/cockroach:v23.1.11 #specific version, just tom ake sure there are no problems in future.
     hostname: cockroach-1
     container_name: roach-1
     command: >
@@ -58,6 +58,14 @@ services:
       -password=
       -connectRetries=60
       migrate
+      
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - cockroach-1
 
 
   ingest-1:

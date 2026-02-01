@@ -27,7 +27,7 @@ const RETRYABLE_ERRORS = new Set([
 
 const MAX_RETRIES = 10;
 
-export const flushBatch = async (batch: any[]) => {
+export const flushBatch = async (batch: any[], workerId: number) => {
     if (batch.length === 0) return;
 
     const { query, values } = createSqlIngestQueryAndValues(batch);
@@ -39,7 +39,16 @@ export const flushBatch = async (batch: any[]) => {
 
         try {
             client = await getClient();
+            const insertStartTime = Date.now();
             await client.query(query, values);
+            const insertDuration = Date.now() - insertStartTime;
+            await client.query(
+                `
+                INSERT INTO ingest_metrics (ts, worker_id, rows_inserted, batch_latency_ms)
+                VALUES (now(), $1, $2, $3)
+                `,
+                [workerId, batch.length, insertDuration]
+            );
             console.log(`Inserted ${batch.length} comments`);
             return;
         } catch (err: any) {
@@ -66,19 +75,19 @@ export const flushBatch = async (batch: any[]) => {
 };
 
 
-async function ingestData(rangeStart:number, rangeEnd:number) {
+async function ingestData(rangeStart:number, rangeEnd:number, workerId:number) {
     for (const row of stmt.iterate(rangeStart, rangeEnd)) {
 
         batch.push(mapRowToComment(row));
 
         if (batch.length >= BATCH_SIZE) {
-            await flushBatch(batch);
+            await flushBatch(batch, workerId);
             batch.length = 0;
         }
     }
 
     if (batch.length > 0) {
-        await flushBatch(batch);
+        await flushBatch(batch, workerId);
     }
 
     db.close();
@@ -93,7 +102,7 @@ if(!workerIdEnv) throw new Error("WORKER_ID env var not set");
 const workerId = parseInt(workerIdEnv)
 const {rangeStart, rangeEnd} = calculateRange(workerId, workersTotal);
 
-await ingestData(rangeStart, rangeEnd);
+await ingestData(rangeStart, rangeEnd, workerId);
 
 
 

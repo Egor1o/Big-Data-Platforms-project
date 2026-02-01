@@ -17,7 +17,12 @@ docker exec -it roach-1 ./cockroach init --insecure
 docker compose up flyway
 ```
 
-4. To execute ingestion workers, run:
+4. (Optional) Get Grafana up (check set up instructions bellow):
+```sh
+docker compose up -d grafana
+```
+
+5. To execute ingestion workers, run:
 ```sh 
 docker compose up ingest-1 ingest-2 ingest-3 ingest-4 ingest-5 ingest-6 ingest-7 ingest-8 ingest-9 ingest-10
 ``` 
@@ -28,7 +33,48 @@ Due to the structure of the project, changes in the core code are not reflected 
 if you modify any part of the code and want to see the changes, you need to rebuild the containers by adding the --build
 flag to the end of the docker-compose command.
 
-
-
 ### Cluster's monitoring
-http://localhost:8080/#/overview/list
+When your CockroachDB cluster is up, you can see the state of one here: http://localhost:8080/#/overview/list
+
+
+### Grafana setup
+
+After Grafana is up, you need to add a new data source.
+Go to http://localhost:3000, login with admin/admin,
+then go to Data Sources -> Add data source -> PostgreSQL.
+
+| Setting | Value |
+|---------|-------|
+| **Default Login** | admin / admin |
+| **Host** | cockroach-1:26257 |
+| **Database** | reddit |
+| **User** | root |
+| **Password** | (leave empty) |
+| **SSL Mode** | disable |
+| **PostgreSQL Version** | 12+ |
+
+After that, got to ad visualization -> Time series and use the following queries:
+Also set interval to 5s (or to other preferred intervals.)
+
+
+Grafana query:
+1. For rows inserted over time (throughput):
+```sql
+SELECT
+$__timeGroupAlias(ts, '5s'),
+SUM(rows_inserted) AS value
+FROM ingest_metrics
+WHERE $__timeFilter(ts)
+GROUP BY 1
+ORDER BY 1;
+```
+2. For average batch latency over time (response time):
+```sql
+SELECT
+$__timeGroupAlias(ts, '5s'),
+AVG(batch_latency_ms) AS value
+FROM ingest_metrics
+WHERE $__timeFilter(ts)
+GROUP BY 1
+ORDER BY 1;
+```
