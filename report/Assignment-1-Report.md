@@ -282,14 +282,35 @@ value:
 "replication_factor": 3
 }
 ```
-
-This schema allows platform components to discover which mysimbdp-coredms instance belongs to a given tenant and how to
-connect to it. This approach is simple and deterministic, which would help in future implementations, especially
-if I decide to upgrade the infrastructure to use orchestration tools lik Kube.
-
 ### 3. Integrating discovery into data ingestion
 
-(TODO)
+First of all, the current Docker Compose setup would no longer need to be updated manually. At the moment, there are
+ten ingest workers, and I do not want to lie that this is a good approach. Every time I want to test with a different number of workers,
+I need to update the Compose file or change startup parameters manually. If there is a change in database
+specifications, the configuration also has to be updated manually.
+
+If service discovery were implemented, instead of using hardcoded database connection information, mysimbdp-dataingest
+instances would first query a service registry, such as Redis or ZooKeeper. The query would be performed based on the
+tenant identifier. This approach can be supported by the service and data discovery schema described in the previous section,
+allowing each tenant to discover exactly where their data should be stored.
+
+The second change would be to modify the current worker ID–based time range assignment. Instead of statically caluclate
+time ranges to ingest workers based on ids, another entry in the service registry would be introduced and managed by the platform.
+This entry would contain time ranges that have not yet been ingested. Each mysimbdp-dataingest instance would first
+query this registry to obtain the next time range to ingest, and after finishing ingestion of that range, it would
+update the registry to mark the range as processed and then request the next available range.
+
+Example of such as registry entry:
+```
+Key: mysimbdp/tenants/tenantA/ingestion
+Value:
+{
+  "time_range_start": 1430438400,
+  "time_range_end": 1433116799,
+}
+```
+
+
 
 ### 4. Introducing mysimbdp-daas
 
