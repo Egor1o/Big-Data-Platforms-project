@@ -1,1 +1,0 @@
-## Place tenant db here. In the Reddit's case it is called database.sqlite

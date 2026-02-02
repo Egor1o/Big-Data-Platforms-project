@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import {calculateRange, mapRowToComment} from "./utils.js";
 import {Client} from "pg";
 import {createSqlIngestQueryAndValues, getClient} from "./database.js";
-const db = new Database("../../tenant/database.sqlite", { readonly: true });
+const db = new Database("../../data/database.sqlite", { readonly: true });
 
 const stmt = db.prepare(`
   SELECT *
