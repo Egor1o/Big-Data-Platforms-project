@@ -267,7 +267,25 @@ scenarios where a single tenant ingests data from multiple sources.
 
 ### 2. Service and data discovery
 
-(TODO)
+For example, the registry can store entries keyed by tenant identifier, with values
+containing the database name, cluster endpoints, and configuration details.
+
+Example logical schema stored in the registry could be:
+
+```
+key: mysimbdp/tenants/{tenant_id} ---> 
+
+value:
+{
+"database_name": "reddit",
+"db_hosts": ["cockroach-1:26257", "cockroach-2:26257", "cockroach-3:26257"],
+"replication_factor": 3
+}
+```
+
+This schema allows platform components to discover which mysimbdp-coredms instance belongs to a given tenant and how to
+connect to it. This approach is simple and deterministic, which would help in future implementations, especially
+if I decide to upgrade the infrastructure to use orchestration tools lik Kube.
 
 ### 3. Integrating discovery into data ingestion
 
