@@ -185,7 +185,21 @@ https://www.cockroachlabs.com/blog/automated-rebalance-and-repair
 
 ### 3. Data ingestion design and consistency assumptions
 
-(TODO)
+Mysimbdp-dataingest is implemented as a TypeScript script that reads data from a tenant’s SQLite database within a
+specified time range and writes it to the CockroachDB cluster in batches. To increase throughput and improve read
+performance by avoiding join operations required in a normalized database, the design maps each row from the
+source database directly to a single row in the target database. This process is validated through the mapper
+function in utils.ts. Each data instance (row) consists of 22 columns, as described in Part 1.
+
+Data ingestors can be executed in parallel, which is explained in root README.md
+
+Data consistency in CockroachDB is ensured by its design, which prioritizes consistency over availability, as stated
+in the official documentation. CockroachDB assumes that node clocks are loosely synchronized with a bounded clock
+skew of up to 500 ms. Although clocks may drift within this bound, the system is designed to account for
+this uncertainty and still provide strong consistency guarantees, ensuring correct and up-to-date reads across the cluster.
+
+Documentation on multi-version concurrency control and clocks mentioned above:
+https://www.cockroachlabs.com/docs/stable/architecture/storage-layer
 
 ### 4. Performance evaluation
 
@@ -227,13 +241,29 @@ situation either positively or negatively.
 
 ### 5. Data consumption and query performance
 
-(TODO)
 
 ## Part 3 – Extensions
 
 ### 1. Data lineage metadata
 
-(TODO)
+As stated earlier, a table named ingest_metrics is implemented to record ingestion metadata for each batch, including
+the ingestion timestamp, the number of rows inserted, the worker identifier, and the batch latency. This table serves
+as a simple form of data lineage metadata, as it captures when data was ingested, how much data was ingested,
+and basic performance characteristics of the ingestion process. Since the current deployment does not
+involve geographically distributed nodes or multiple ingestion locations, location-based lineage metadata is not included.
+
+Also, I see it useful that I included worker id tracking for each write operation. For instance, it would enable
+identifying ingestion workers that produce high-latency batches or experience frequent failures, allowing
+their logging, alerting, and using load balancing techniques based on the log/historical data.
+
+Also, I see it worth to mention that the current lineage implementation focuses mostly on ingestion-time metadata 
+and does not explicitly store source identifiers
+or dataset versions, as the platform assumes a single well-defined data source in this deployment (see part 1) . 
+However, this can be
+extended in future implementations depending on tenant requirements. For example, adding a ```source_id``` column to the
+```comments``` table would allow each ingested comment to be associated with its original data source. This would enable
+basic data provenance tracking, making it possible to trace records back to their source dataset and for example support
+scenarios where a single tenant ingests data from multiple sources.
 
 ### 2. Service and data discovery
 

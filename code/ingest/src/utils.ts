@@ -8,7 +8,6 @@ export const calculateRange = (workerId: number, workersTotal: number) => {
     return { rangeStart, rangeEnd };
 };
 
-//TODO check the real value some rows may be crrupted.
 function toBoolean(value: any): boolean {
     if (value === true || value === false) return value;
     if (value === null) return false;
