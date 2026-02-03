@@ -314,7 +314,38 @@ Value:
 
 ### 4. Introducing mysimbdp-daas
 
-(TODO)
+If we were to introduce the mysimbdp-daas component, it would mean that ingestors and consumers would no longer connect
+directly to the database, but would instead interact through an intermediate layer. mysimbdp-daas would allow balancing
+load between multiple database clusters and would also provide a stronger security layer, since direct access to the
+database would be restricted. At the same time, this approach would introduce additional latency and maintenance overhead.
+
+Shifting the architecture to a DaaS model means that a service is placed between data producers/consumers and the database.
+Communication through mysimbdp-daas would be based on defined API specifications. Ingestors and readers would send requests
+to mysimbdp-daas, which would process them, validate the data, and forward the requests to mysimbdp-coredms in an appropriate
+way (for example authorization params and data batches). mysimbdp-daas could potentially manage multiple database clusters
+behind it and route requests based on load, time of day, or other parameters, removing this responsibility from producers
+and consumers. This approach reduces the need for direct service and data discovery in mysimbdp-dataingest, since all
+communication would be handled through the DaaS layer, while service discovery would still be required internally by mysimbdp-daas.
+
+An additional aspect that comes to mind is that with a DaaS layer, it could be easier to record and manage lineage data.
+For example, lineage metadata could be written through the same API but stored in a separate database or cluster, avoiding
+additional load on the primary data storage while still maintaining traceability of ingestion operations.
+
+
+The schema would look something like this:
+
+```
+Tenant data source
+        |
+        v
+ mysimbdp-dataingest
+        |
+        v
+   mysimbdp-daas <------- Consumers
+        |
+        v
+ mysimbdp-coredms
+```
 
 ### 5. Hot and cold data management
 
