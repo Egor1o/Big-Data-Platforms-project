@@ -1,6 +1,6 @@
 ### Logs
 
-This is the folder I dedicated to the Grafana outputs for the metrics written by my ingestors, as mentioned in the report.
+This is the folder I dedicated to the Grafana outputs for the metrics written by my ingestors/consumers, as mentioned in the report.
 I prefer data visualization, as I believe it is a best practice for truly understanding large amounts of
 data in a compact and intuitive way.
 
