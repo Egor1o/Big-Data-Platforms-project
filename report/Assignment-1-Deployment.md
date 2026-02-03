@@ -50,6 +50,42 @@ docker compose up consumer-1
 ``` 
 If you want to test less or more amount of consumers, just remove unnecessary services from the command above.
 
+
+### HOW DO I KNOW THE THINGS ARE WORKING?
+1. You know that the cluster is alive and ready when you have executed steps 1 and 2 and see this in the console:
+```
+roach-1  | CockroachDB node starting at ...
+roach-1  | build:               CCL v23.1.11 @ 2023/09/27 
+roach-1  | webui:               http://cockroach-1:8080
+....
+roach-1  | status:              initialized new cluster
+roach-1  | nodeID:              1
+roach-3  | CockroachDB node starting at ...
+roach-3  | build:               CCL ...
+roach-3  | webui:               http://cockroach-3:8080
+...
+roach-3  | status:              initialized new node, joined pre-existing cluster
+roach-3  | nodeID:              2
+```
+At this point you should also be able to access the cluster's monitoring UI at http://localhost:8080
+2. You know that the Flyway migrations were successful when you see this in the console (step 3):
+```
+flyway_1  | Successfully applied 3 migrations to schema `public` (execution time 00:00.123s)
+ .....
+```
+After that check /code/db README to get instructions how to connect to db through terminal.
+3. At this point if everything is correct, you can start ingestors or/and consumers. You will know they are working when
+you see logs like this:
+```
+ingest-10-1  | Inserted 500 comments
+consumer-5-1  | Worker 5 read 500 newest comments in 5542ms
+consumer-3-1  | Worker 3 read 500 newest comments in 6136ms
+```
+If you are using ```sample.sqlite``` please run this ingestor, as the dataset contains the newest records.
+```sh
+docker compose up ingest-10 --build
+```
+
 ### Notice
 Before going down, please note the following:
 
