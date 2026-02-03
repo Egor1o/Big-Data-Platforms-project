@@ -22,7 +22,6 @@ export const readData = async (workerId: number) => {
         try {
             client = await getClient();
             await Promise.all([ read500MostPopular(workerId, client), read500Newest(workerId, client) ]);
-            return;
         } catch (err: any) {
             attempt++;
 

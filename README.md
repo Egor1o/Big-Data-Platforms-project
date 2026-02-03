@@ -36,6 +36,18 @@ docker compose up ingest-1
 ``` 
 If you want to test less or more amount of workers, just remove unnecessary services from the command above.
 
+6. To execute consumer workers, run:
+
+* 5 consumers:
+```sh 
+docker compose up consumer-1 consumer-2 consumer-3 consumer-4 consumer-5
+``` 
+* 1 consumer:
+```sh 
+docker compose up consumer-1  
+``` 
+If you want to test less or more amount of consumers, just remove unnecessary services from the command above.
+
 ### Notice
 Before going do, please note the following:
 
