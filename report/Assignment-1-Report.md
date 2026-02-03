@@ -241,6 +241,47 @@ situation either positively or negatively.
 
 ### 5. Data consumption and query performance
 
+This part is actually what I am doing as the last item from the whole assignment list, and at this point I have to admit
+a few things.
+
+The reading speed is bad. As much as the ingestor ingests more and more data, the reading speed goes down faster
+and faster. At first, I thought that some things were not that necessary, for example data normalization and better
+architecture for the structure of the data I am storing. At this point in time, it is a bit too late to change the
+structure of the database to get better performance, but I do have some ideas for that.
+
+Before I dig into those ideas and further explanations, I would like to stop and take a look at what I have received
+from Grafana. Please take a look at logs/5_consumers_yellow_5_ingestor_green.png. As the name states, the yellow line
+is the reading throughput, and the green line is the writing throughput. If you take a look at
+logs/5_ingestors_grafana.png, you will notice that the average writing speed is around 150k rows per 5 seconds when
+there are no consumers, just pure writing. But when you take a look at the graph with consumers, you will notice that
+the writing speed drops to around 65k rows per 5 seconds. The further the writing continues, the worse it becomes.
+This is most likely due to the fact that reading is performed in parallel, and as the data grows, reading takes
+more and more resources to complete.
+
+As a context, my consumers are implemented in a way that they are finding 500 most popular subreddits by the amount of comments
+and 500 newest comments from the database overall.
+
+After around 10 minutes of writing into the database, the reading speed goes down to about 1000 rows per 5 seconds on average,
+which is really bad, especially considering that at the very beginning the reading speed is even better than the writing speed.
+
+This is happening because of a few reasons. First, since the data is replicated on 3 nodes and there is no sharding as
+such by default, I am not distributing the data horizontally very well. Even though CockroachDB is applying ranging
+and partitioning, it is simply not enough for such a big amount of data. The second, and one of the most important
+reasons, is that the data is not normalized. I thought that normalization would be killing in our case and that
+simplicity was the way to go, as it saves resources, but now I can definitely see that normalization is vital here.
+For example, querying 500 most popular subreddits would be much faster if I had a separate table for subreddits,
+including the comment count itself, or just a table that is updated on each insert with the subreddit name and a
+counter of comments. Of course, this would slow down ingestion a bit, but it is a fair trade-off for avoiding a
+situation where the reading speed is almost zero at the end.
+
+The third reason is that I am not using any indexes at all. Adding indexes on the columns that are used for filtering
+and sorting would definitely help here. I have tried adding an index on the subreddit column, and I can see a small
+increase in speed, but it is still not sufficient. So, again it is about the design as a whole.
+
+Overall, if I were to redesign and replan what I am doing right now, I would think much more precisely about the data
+structure I have, about normalization and indexing. I would also think about the sharding strategy much more carefully.
+Taking into account the trade-off in CockroachDB’s speed in order to provide consistency, these things are a must-have.
+
 
 ## Part 3 – Extensions
 
