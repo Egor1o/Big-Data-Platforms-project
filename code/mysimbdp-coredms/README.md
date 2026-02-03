@@ -1,11 +1,13 @@
 ### Instructions for mysimbdp-coredms
 
-In order to get performance metrics for the write operations with different stats, please follow the recommended workflow below.
+In order to get performance metrics for the write/read operations with different stats, please follow the recommended 
+workflow below.
 
-1. Assuming your CockroachDB cluster is not up, run:
+
+1. Assuming your CockroachDB cluster is up, you can access one of the cockroach nodes (bellow node number 1):
 
 ```sh
-docker
+docker exec -it roach-1 cockroach sql --insecure
 ```
 
 
@@ -15,7 +17,13 @@ docker
 USE reddit;
 ```
 
-3. Finally run following sql aggregator:
+3. You can check whether the migrations are successfully deployed at this point by running (there should be 3 tables)
+```sh
+\dt
+```
+You can also run any SQL query at this point to check the validity of the data.
+
+4. Finally run following sql aggregator:
 
 ```sql
 WITH params AS (
@@ -43,4 +51,8 @@ WHERE ts BETWEEN p.start_ts AND p.end_ts;
 ```
 
 In the query command above, please replace `START_TIME` and `END_TIME` with the actual time range you want to analyze.
+For the read operations stored in the database, change the parameters accordingly. Change the name of the table 
+and the fields in the SUMs.
+
+
 

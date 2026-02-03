@@ -1,5 +1,7 @@
 ## Recommended workflow
 
+Execute further commands in dedicated order. Please, execute the commands from the root folder.
+
 1. To get up cockroach instances, run:
 ```sh
 docker compose up cockroach-1 cockroach-2 cockroach-3 --build
@@ -8,7 +10,7 @@ docker compose up cockroach-1 cockroach-2 cockroach-3 --build
 2. To initialize cluster, run:
 ```sh
 docker exec -it roach-1 ./cockroach init --insecure 
-``` 
+```
 
 3. Then run Flyway migrations:
 ```sh
@@ -49,14 +51,17 @@ docker compose up consumer-1
 If you want to test less or more amount of consumers, just remove unnecessary services from the command above.
 
 ### Notice
-Before going do, please note the following:
+Before going down, please note the following:
 
 1. Due to the structure of the project, changes in the core code are not reflected in the running containers. Therefore,
-if you modify any part of the code and want to see the changes, you need to rebuild the containers by adding the --build
-flag to the end of the docker-compose command.
+   if you modify any part of the code and want to see the changes, you need to rebuild the containers by adding the --build
+   flag to the end of the docker-compose command.
 2. If you remove the main node connected to Grafana (cockroach-1), Grafana will lose connection to the database. As stated
-earlier in reality database is still up and ingestors are working, but Grafana will not be able to show any metrics until you
-reconnect it to any of the running nodes. So, prefer to close nodes that are not connected to Grafana first.
+   earlier in reality database is still up and ingestors are working, but Grafana will not be able to show any metrics until you
+   reconnect it to any of the running nodes. So, prefer to close nodes that are not connected to Grafana first.
+3. Please check the README.md files in the code/ folder, as they will guide you through the code structure and the idea. 
+   Especially check code/db/README.md for instructions on how to get raw metrics from the database if you do not want to use Grafana.
+4. Check README.md in the data, in order to understand where to place the Reddit's database file.
 
 ### Cluster's monitoring
 When your CockroachDB cluster is up, you can see the state of one here: http://localhost:8080/#/overview/list
@@ -93,12 +98,22 @@ WHERE $__timeFilter(ts)
 GROUP BY 1
 ORDER BY 1;
 ```
-2. For average batch latency over time (response time):
+2. For average batch latency over time of insertion (response time):
 ```sql
 SELECT
 $__timeGroupAlias(ts, '5s'),
 AVG(batch_latency_ms) AS value
 FROM ingest_metrics
+WHERE $__timeFilter(ts)
+GROUP BY 1
+ORDER BY 1;
+```
+3. For rows read over time (throughput):
+```sql
+SELECT
+$__timeGroupAlias(ts, '5s'),
+SUM(rows_returned) AS value
+FROM consume_metrics
 WHERE $__timeFilter(ts)
 GROUP BY 1
 ORDER BY 1;
