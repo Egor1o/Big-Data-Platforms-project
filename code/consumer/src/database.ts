@@ -31,7 +31,7 @@ export async function getClient() {
 
     throw lastError ?? new Error("All CockroachDB nodes are down");
 }
-export const writeMetrics = async (
+const writeMetrics = async (
     consumerId: number,
     queryType: string,
     rowsReturned: number,
@@ -51,7 +51,7 @@ export const writeMetrics = async (
     }
 };
 
-const read500MostPopular = async (workerId: number, client: Client) => {
+export const read500MostPopular = async (workerId: number, client: Client) => {
     const startTime = Date.now();
 
     const result = await client.query(
@@ -72,7 +72,7 @@ const read500MostPopular = async (workerId: number, client: Client) => {
     return result.rows;
 };
 
-const read500Newest = async (workerId: number, client: Client) => {
+export const read500Newest = async (workerId: number, client: Client) => {
     const startTime = Date.now();
 
     const result = await client.query(

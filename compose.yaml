@@ -178,6 +178,46 @@ services:
     depends_on:
       - cockroach-1
 
+  consumer-1:
+    build: ./code/consumer
+    environment:
+      - WORKER_ID=1
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+    depends_on:
+      - cockroach-1
+
+  consumer-2:
+    build: ./code/consumer
+    environment:
+      - WORKER_ID=2
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+    depends_on:
+      - cockroach-1
+
+  consumer-3:
+    build: ./code/consumer
+    environment:
+      - WORKER_ID=3
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+    depends_on:
+      - cockroach-1
+
+  consumer-4:
+    build: ./code/consumer
+    environment:
+      - WORKER_ID=4
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+    depends_on:
+      - cockroach-1
+
+  consumer-5:
+    build: ./code/consumer
+    environment:
+      - WORKER_ID=5
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+    depends_on:
+      - cockroach-1
+
 volumes:
   crdb1:
   crdb2:

@@ -1,7 +1,5 @@
 import type {Client} from "pg";
-import {getClient} from "./database.js";
-
-
+import {getClient, read500MostPopular, read500Newest} from "./database.js";
 
 const sleep = (ms: number) =>
     new Promise(resolve => setTimeout(resolve, ms));
@@ -15,8 +13,7 @@ const RETRYABLE_ERRORS = new Set([
 
 const MAX_RETRIES = 10;
 
-export const readData = async (batch: any[], workerId: number) => {
-    if (batch.length === 0) return;
+export const readData = async (workerId: number) => {
     let attempt = 0;
 
     while (true) {
@@ -24,6 +21,8 @@ export const readData = async (batch: any[], workerId: number) => {
 
         try {
             client = await getClient();
+            await read500MostPopular(workerId, client)
+            await read500Newest(workerId, client)
             return;
         } catch (err: any) {
             attempt++;
@@ -47,3 +46,10 @@ export const readData = async (batch: any[], workerId: number) => {
         }
     }
 };
+
+
+const workerIdEnv = process.env.WORKER_ID;
+if(!workerIdEnv) throw new Error("WORKER_ID env var not set");
+const workerId = parseInt(workerIdEnv);
+
+await readData(workerId)
