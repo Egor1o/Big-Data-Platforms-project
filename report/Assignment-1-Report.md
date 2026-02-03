@@ -349,4 +349,31 @@ Tenant data source
 
 ### 5. Hot and cold data management
 
-(TODO)
+First of all, I would not use the same database to store both hot and cold data. Over time, cold data would continuously
+grow and dominate the hot data, which would make operations on hot data significantly slower. This is especially important
+in the context of a platform that may receive dozens of terabytes of data per month, (or even petabytes nowdays).
+For this reason, I would store hot data and cold data separately.
+
+To achieve this, I would create two tables. In my case, I assume that hot data is data that is one week old or less,
+while cold data represents historical data. Another type of hot data could be related to a specific subreddit or an explicit
+topic that is of particular interest for analytics. To support this, I would add a column indicating the type of hotness,
+with a predefined marker like time-based hotness or topic-based hotness.
+
+Tenants would be able to mark how hot the data is for each row if needed. By default, however, any data older than one
+week would be considered cold.
+
+To move data from the hot table to the cold table, I do not think there is a need to overengineer the solution.
+A simple background job could periodically process the hot table and move data that is older than one week, or no longer
+marked as hot, from the hot table into the cold table.
+
+I also see a clear sign of the benefit from caching mechanisms in this setup. For example, an additional caching layer, which is not
+part of mysimbdp-coredms itself, could be introduced using Redis. This cache could store the most frequently accessed
+comments, such as comments from the last hour or comments with a high hotness score. The cache could be refreshed
+periodically, for example every 15 minutes. Considering that the hot data table may still grow to very large sizes,
+a Redis-based cache could significantly reduce load on the database and act as a strong performance booster for analytical workloads.
+
+Although CockroachDB provides strong consistency guarantees, logical inconsistencies may occur at the application level
+during data movement between hot and cold tables. For example, queries that only access hot data may temporarily miss
+records that have already been moved to cold storage, and cached results may briefly lag behind the database state.
+However those are not critical things for analytics, as analytics are usually built over a long time period, which
+means that to mitigate the problem we just need some time.
