@@ -105,9 +105,10 @@ factor of three, a quorum consists of two replicas. As a result, the database ca
 node while continuing to operate. If the failed node was the leader for a given range, leadership is automatically
 reassigned to another replica. However, if two out of three nodes become unavailable, the database can no longer achieve
 a quorum, and write operations are halted until at least one node is restored or a new node is added to the cluster.
+The official documentation says the ```The number of failures that can be tolerated is equal to (Replication factor - 1)/2```
 
-In addition to the database-level fault tolerance, the second layer of fault tolerance is implemented at the ingestion
-level. Ingest workers continuously attempt to write data to the database and include retry logic to handle transient
+In addition to the database-level fault tolerance, the second layer of fault tolerance is implemented at the ingestion/consumption
+level. Ingest/consumption workers continuously attempt to write/read data to the database and include retry logic to handle
 failures. When a write operation fails due to temporary issues such as leader election or node unavailability,
 the ingest workers retry the operation using an exponential backoff strategy based on a 2ⁿ delay. After a predefined
 maximum number of retries, the ingest process stops and reports a failure.
