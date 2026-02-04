@@ -321,7 +321,7 @@ situation where the reading speed is almost zero at the end.
 
 The third reason is that I am not using any indexes at all. Adding indexes on the columns that are used for filtering
 and sorting would definitely help here. I have tried adding an index on the subreddit column, and I can see a small
-increase in speed, but it is still not sufficient. So, again it is about the design as a whole.
+increase in reading speed, but it is still not sufficient. So, again it is about the design as a whole.
 
 Overall, if I were to redesign and replan what I am doing right now, I would think much more precisely about the data
 structure I have, about normalization and indexing. I would also think about the sharding strategy much more carefully.
