@@ -74,8 +74,9 @@ store and manage tenant data while ensuring fault tolerance.
 
 At this stage, mysimbdp-dataingest is implemented as a TypeScript script that reads data from the tenant’s data source
 and writes it into mysimbdp-coredms using a batching technique. The implementation assumes that the tenant’s data source
-is provided as an SQLite database file. Further technical details of the ingestion
-process are described in the implementation section.
+is provided as an SQLite database file. To ingest the data, the ingestor must be connected to the database. The connection
+is established using the pg library’s Client interface. If the connection is lost during ingestion, the implementation
+is designed to retry the connection before continuing the ingestion process.
 
 At this stage of the assignment, orchestration tools such as Kubernetes or Docker Swarm are not used.
 In a production environment, such tools would be essential. For example, if the dataset represented a small
@@ -84,7 +85,7 @@ vulnerable to failures during ingestion without orchestration support.
 
 In this project, the data volume is relatively small (compared to the real data set), which makes Docker Compose
 sufficient for deploying a multi-node database cluster. Nevertheless, orchestration is considered
-a clear area for future improvement and part of the platform’s long-term evolution.
+to be a clear area for future improvement and part of the platform’s evolution.
 
 Another component that is not implemented at this stage is event-driven data ingestion. Such a component would
 be useful in scenarios where data ingestion and data consumption are coordinated through events, for example by notifying
