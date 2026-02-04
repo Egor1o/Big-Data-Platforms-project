@@ -2,7 +2,7 @@
 
 This is the directory containing the consumer code for the assignment. The consumer is connected
 to the database in the same way as the ingestor. The consumer has two operations that it executes
-in parallel using Promise.all. These are reading 5000 newest comments and 500 most popular comments
+in parallel using Promise.all. These are reading 500 newest comments and 500 most popular comments
 from the database.
 
 Each read operation is stored into dedicated ```consume_metrics``` table.
