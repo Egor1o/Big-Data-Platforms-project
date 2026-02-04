@@ -1,3 +1,93 @@
+commit e028ce966f5ffeb74d399fc3b993795cec96598f (HEAD -> main, origin/main, origin/HEAD)
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 21:00:11 2026 +0200
+
+    Added error resiliency to terminated connection.
+
+commit d5673866fc26918b33db8b2fbeea4e36a08ad622
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 20:53:08 2026 +0200
+
+    Deployemnt readme update.
+
+commit 68ad1d017292cdd7f72eec87bc36d8dc1359c11d
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 20:48:13 2026 +0200
+
+    Small fixes.
+
+commit ad9f6cfa08c4997b3a46bf81a6d6129b5f26cbe2
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 20:30:06 2026 +0200
+
+    Small fix to point 5 part 5.
+
+commit b476fc16d0978ce773f500c62462c6b9b9f1a4ad
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 20:24:56 2026 +0200
+
+    Part 2 point 4 fixed.
+
+commit c31fe6c1da3a0238a76b873a68e73c1ff5939dec
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 19:42:17 2026 +0200
+
+    Part 2 point 3 fixed.
+
+commit 906fd6732c5fafb8469881797f67ce6a2a158d9e
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 19:21:22 2026 +0200
+
+    Part 2 point 2, rewritten and formatted README.
+
+commit 65d3742ab81866ee8c8d48b43647232b646b444e
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 18:42:38 2026 +0200
+
+    Part 2 point 1.
+
+commit 24780f72c3b75ca517f70c0a2b5cc9fa61139136
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 18:32:15 2026 +0200
+
+    Added specification.
+
+commit 38bd8d0b85875af8a61ecc34e74f235a73dbe071
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 18:31:09 2026 +0200
+
+    Modified answer to the second point of part 3.
+
+commit 378ba9f323d273333c7c7705de15c2e2475275be
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 18:21:55 2026 +0200
+
+    Modified answer to the second point of part 3.
+
+commit 3b172c0440b5d5ae2638c73157e5c62d43279308
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 18:17:02 2026 +0200
+
+    Modified answer to the second point of part 1.
+
+commit 183fa8668636305d0a4ff2d8a520006cf934dfa9
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 18:06:06 2026 +0200
+
+    Added info on accessing tenant's resource.
+
+commit 06c94a9611cd922628a81e9f15a729dfceaa02ee (HEAD -> main, origin/main, origin/HEAD)
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 02:02:10 2026 +0200
+
+    submitter.csv
+
+commit d1f902bc0bea36dbd1234260b26a4a778bdac009
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 02:01:04 2026 +0200
+
+    Added log file.
+
 commit 9c95557b5b49deda3f3047a0fad7dc35c4bf1b74 (HEAD -> main)
 Author: Egor1o <egorklo147@gmail.com>
 Date:   Wed Feb 4 01:58:36 2026 +0200
