@@ -20,6 +20,10 @@ export async function getClient() {
             connectionTimeoutMillis: 2000,
         });
 
+        client.on('error', (err) => {
+            console.error('[PG CLIENT ERROR]', err.message);
+        });
+
         try {
             await client.connect();
             return client;
