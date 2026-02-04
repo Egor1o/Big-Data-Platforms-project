@@ -201,13 +201,14 @@ the developer would need to make their own life a bit harder.
 
 By delegating partitioning and replication to CockroachDB, however, the platform avoids manual sharding logic and benefits
 from scalable performance and resilience with minimal operational complexity. But again, in the case of an actual big data
-platform, it is not enough to rely solely on the automatic behavior of CockroachDB.
+platform, it is not enough to rely only on the automatic behavior of CockroachDB.
 
 In my case with 3 nodes the replication number is 3. You can check that too following instructions in /code/db/README.md. 
 
 As here I'm referring to the CockroachDB own characteristics, here are the resources, that I got an inspiration from.
-https://www.cockroachlabs.com/blog/automated-rebalance-and-repair
-https://www.cockroachlabs.com/docs/v26.1/demo-replication-and-rebalancing
+* https://www.cockroachlabs.com/blog/automated-rebalance-and-repair
+
+* https://www.cockroachlabs.com/docs/v26.1/demo-replication-and-rebalancing
 
 ### 3. Data ingestion design and consistency assumptions
 
@@ -217,15 +218,19 @@ performance by avoiding join operations required in a normalized database, the d
 source database directly to a single row in the target database. This process is validated through the mapper
 function in utils.ts. Each data instance (row) consists of 22 columns, as described in Part 1.
 
-Data ingestors can be executed in parallel, which is explained in root README.md
+The atomic data unit stored by the platform is a single Reddit comment. Each comment is treated as an independent and
+atomic entity and is written as mentioned above as one row.
 
-Data consistency in CockroachDB is ensured by its design, which prioritizes consistency over availability, as stated
-in the official documentation. CockroachDB assumes that node clocks are loosely synchronized with a bounded clock
-skew of up to 500 ms. Although clocks may drift within this bound, the system is designed to account for
-this uncertainty and still provide strong consistency guarantees, ensuring correct and up-to-date reads across the cluster.
+Data ingestors can be executed in parallel, which is explained in Assignment-1-Deployment.md
+
+Data consistency in CockroachDB is ensured by its design, which prioritizes consistency over availability, as stated in
+the official documentation. Write operations are committed only after a quorum of replicas acknowledges the transaction,
+providing strong consistency. CockroachDB assumes that node clocks are loosely synchronized with a bounded
+clock skew of up to 500 ms, and accounts for this uncertainty using multi-version concurrency control to ensure
+correct and up-to-date reads and writes across the cluster.
 
 Documentation on multi-version concurrency control and clocks mentioned above:
-https://www.cockroachlabs.com/docs/stable/architecture/storage-layer
+* https://www.cockroachlabs.com/docs/stable/architecture/storage-layer
 
 ### 4. Performance evaluation
 
