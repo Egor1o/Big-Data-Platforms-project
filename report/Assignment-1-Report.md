@@ -113,6 +113,7 @@ by ingestors/consumers. Data is replicated across the nodes, and no single node 
 failure of any individual node does not create a single point of failure, and the database remains available as long as
 a quorum of nodes is maintained.
 
+#### Additional layer  (not in the domain of the cluster)
 In addition to the database-level fault tolerance, the second layer of fault tolerance is implemented at the ingestion/consumption
 level. Ingest/consumption workers continuously attempt to write/read data to the database and include retry logic to handle
 failures. When a write operation fails due to temporary issues such as leader election or node unavailability,
