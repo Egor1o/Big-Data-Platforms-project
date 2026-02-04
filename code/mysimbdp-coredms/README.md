@@ -1,4 +1,4 @@
-### Instructions for mysimbdp-coredms
+## Instructions for mysimbdp-coredms
 
 In order to get performance metrics for the write/read operations with different stats, please follow the recommended 
 workflow below.
@@ -54,5 +54,11 @@ In the query command above, please replace `START_TIME` and `END_TIME` with the 
 For the read operations stored in the database, change the parameters accordingly. Change the name of the table 
 and the fields in the SUMs.
 
+### Replication factor
+To check the replication factor of either access cluster's overview page at http://localhost:8080/#/overview/list, 
+or run this in the node:
+```sql
+SHOW ZONE CONFIGURATION FOR RANGE default;
+```
 
 

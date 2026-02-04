@@ -189,15 +189,25 @@ not described in detail in this section.
 Partitioning and replication strategies are left to CockroachDB, as it is able to perform them efficiently at the
 database layer. CockroachDB automatically partitions tables into key ranges based on the primary key and distributes
 these ranges across available nodes. As data volume grows, ranges are split and rebalanced
-without requiring changes in application logic.
+without requiring changes in application logic. Official docs say: ` As soon as that range reaches the maximum range size, it splits into two ranges.`
 
-Replication is handled at the same level by maintaining multiple replicas of each range according to the configured
-replication factor. This allows data to be evenly distributed across nodes while providing fault tolerance and strong
-consistency through quorum-based replication. By delegating partitioning and replication to CockroachDB, the platform
-avoids manual sharding logic and benefits from scalable performance and resilience with minimal operational complexity.
+Range partitioning and distribution is what can be called sharding in the case of CockroachDB, and it is handled by the database itself.
+However, if one would like to provide more robust sharding, for example sharding between clusters, it would require
+additional configuration at the application level, so that one understands where to write and from where to read the
+data. In the case of a big data platform, it is reasonable to have multiple clusters involved in sharding. The replication
+number is not controlled in the deployment configuration, but is defined within CockroachDB itself, which then manages
+replica creation, placement, and rebalancing automatically. As a result, in order to make the database’s life easier,
+the developer would need to make their own life a bit harder.
 
-As here I'm referring to the CockroachDB own characteristics, here is the resource, that I got an inspiration from.
+By delegating partitioning and replication to CockroachDB, however, the platform avoids manual sharding logic and benefits
+from scalable performance and resilience with minimal operational complexity. But again, in the case of an actual big data
+platform, it is not enough to rely solely on the automatic behavior of CockroachDB.
+
+In my case with 3 nodes the replication number is 3. You can check that too following instructions in /code/db/README.md. 
+
+As here I'm referring to the CockroachDB own characteristics, here are the resources, that I got an inspiration from.
 https://www.cockroachlabs.com/blog/automated-rebalance-and-repair
+https://www.cockroachlabs.com/docs/v26.1/demo-replication-and-rebalancing
 
 ### 3. Data ingestion design and consistency assumptions
 
