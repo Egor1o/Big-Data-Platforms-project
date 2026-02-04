@@ -53,7 +53,10 @@ in this project, the data source is a Reddit comments dataset obtained from Kagg
 characterized by large data volumes, high ingestion throughput, and concurrent access by multiple data producers and consumers.
 As a real example, multiple ingestion processes may load different subsets of Reddit comments in parallel to reduce total
 ingestion time, while analytical queries retrieve data by subreddit or time range to verify that ingestion
-is progressing correctly and to enable early exploratory analysis of the data.
+is progressing correctly and to enable early analysis of the data.
+
+To access the tenant’s resources, I’m using the better-sqlite library. I chose this library explicitly because it allows
+querying data row by row, which helps with formatting batches. The implementation can be found in the consumer and ingestor codebases.
 
 The motivation for operating on the data can be broad. The following examples show why it is important to 
 efficiently store and process the data used by the platform.
