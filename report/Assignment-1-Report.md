@@ -323,10 +323,16 @@ The third reason is that I am not using any indexes at all. Adding indexes on th
 and sorting would definitely help here. I have tried adding an index on the subreddit column, and I can see a small
 increase in reading speed, but it is still not sufficient. So, again it is about the design as a whole.
 
+Adding new nodes (five in total) does help, because there is more space for range sharding, but it again reaches a maximum
+after which performance becomes very slow.
+
 Overall, if I were to redesign and replan what I am doing right now, I would think much more precisely about the data
 structure I have, about normalization and indexing. I would also think about the sharding strategy much more carefully.
 Taking into account the trade-off in CockroachDB’s speed in order to provide consistency, these things are a must-have.
 
+#### Quick note
+I have a sb table `consume_metrics` that stores the results of data reading if you are wondering where the results for
+Grafana are coming from. Check consumer's README to get more info on the code implementation.
 
 ## Part 3 – Extensions
 
@@ -340,15 +346,15 @@ involve geographically distributed nodes or multiple ingestion locations, locati
 
 Also, I see it useful that I included worker id tracking for each write operation. For instance, it would enable
 identifying ingestion workers that produce high-latency batches or experience frequent failures, allowing
-their logging, alerting, and using load balancing techniques based on the log/historical data.
+their logging, alerting, and using load balancing based on the logs/historical data.
 
 Also, I see it worth to mention that the current lineage implementation focuses mostly on ingestion-time metadata 
 and does not explicitly store source identifiers
-or dataset versions, as the platform assumes a single well-defined data source in this deployment (see part 1) . 
+or dataset versions, as the platform assumes a single well-defined data source in this deployment (see part 1). 
 However, this can be
 extended in future implementations depending on tenant requirements. For example, adding a ```source_id``` column to the
 ```comments``` table would allow each ingested comment to be associated with its original data source. This would enable
-basic data provenance tracking, making it possible to trace records back to their source dataset and for example support
+basic data tracking, making it possible to trace records to their source dataset and for example support
 scenarios where a single tenant ingests data from multiple sources.
 
 ### 2. Service and data discovery
