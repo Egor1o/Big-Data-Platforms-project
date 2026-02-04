@@ -1,0 +1,281 @@
+commit 9c95557b5b49deda3f3047a0fad7dc35c4bf1b74 (HEAD -> main)
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 01:58:36 2026 +0200
+
+    Added readmes to ingestor and consumer. Added 1 ingestor's results.
+
+commit 169f571b8d0697cced4c9358d85bbc48391f62b5 (origin/main, origin/HEAD)
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 01:41:56 2026 +0200
+
+    Little textual update.
+
+commit efd1f0bb40ebfbc72f2adaa3aabd031ea76ee498
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 01:39:59 2026 +0200
+
+    Updated instructions and readme.
+
+commit b645001fee9ebf2f02eed80d8e2ba26273a6daf6
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 01:28:44 2026 +0200
+
+    Added readme for tenant. Added sample db.
+
+commit 1a693f33ad1ddf00cf60f2d73c7c37e218b0379b
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 01:05:07 2026 +0200
+
+    Updated deployment guide and READMEs
+
+commit 51ed0621ad594984c648ff9586426a5db8e0e3fa
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Feb 4 00:41:23 2026 +0200
+
+    Part 2. Point 5.
+
+commit 6658fabd7f7a57695aeb146032b8a4dff3407889
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Tue Feb 3 21:12:29 2026 +0200
+
+    removed return, added consumer compose instructions.
+
+commit 42637ea340b9618813c1394c5c583c4ab77ef4a9
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Tue Feb 3 20:37:47 2026 +0200
+
+    Removed a bottleneck from consumer.
+
+commit 567660d186070821798db7791537a11c126b3c81
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Tue Feb 3 20:34:12 2026 +0200
+
+    Added readers in the main executor. Fixed compose.
+
+commit 8716f9a65a487f5a86fbbb2f43ecc7bbdd99f8c9
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Tue Feb 3 20:26:47 2026 +0200
+
+    Consumer base logic.
+
+commit 59a7cc95ae65e379e4251fc9c51fe0879af3cc1e
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Tue Feb 3 19:53:20 2026 +0200
+
+    datbase file.
+
+commit 51c84892df4ab6063071f46fbaa9631843d68131
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Tue Feb 3 19:53:02 2026 +0200
+
+    Added consumer setup.
+
+commit e2013b653ea625a9ae4de180261cd3c70fdbea2a
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Tue Feb 3 19:45:17 2026 +0200
+
+    Part 3. Point 5.
+
+commit 89199c6ed37a2934646daf0953424523130560cc
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Tue Feb 3 19:02:57 2026 +0200
+
+    Part 3. Point 4.
+
+commit f9bc67560288f5a7c947f2a05f7ac97c404c43e4
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Tue Feb 3 00:10:26 2026 +0200
+
+    Part 3. Point 3.
+
+commit 3beb50b0f7b9ca9cd1cca2dadd818151c006f374
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Mon Feb 2 23:34:51 2026 +0200
+
+    Part 3. Point 2.
+
+commit 3fc5d6f4c08c8035e5f4f6862f1a4056a7fd85f1
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Mon Feb 2 23:21:11 2026 +0200
+
+    Cleanups.
+
+commit 04ac2b845f419e8339a60b4e7801cfa5e998754f
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Mon Feb 2 23:12:28 2026 +0200
+
+    Logs folder.
+
+commit 6612f58776ec94568170d76b1c75fcd6a0b93c19
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Mon Feb 2 23:02:09 2026 +0200
+
+    Part 3. Point 1, Part 2 point 3
+
+commit 89f3f4ec5efc4a10e7661791ac1de38df303b35d
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Mon Feb 2 01:38:11 2026 +0200
+
+    Part 2. Point 3, + fixes to Point 4.
+
+commit aaf1e5cabba7afbe32c23575789700f984cadcbe
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Mon Feb 2 01:23:35 2026 +0200
+
+    Added real results of the for the performance metrics.
+
+commit a85fb1b19db924927ed48da1bc2e115c05edb314
+Author: Egor Kovalenko <119003931+Egor1o@users.noreply.github.com>
+Date:   Mon Feb 2 01:18:39 2026 +0200
+
+    Add files via upload
+
+commit 1c0d2ccc6b8bc4270a82130aa206eccb959458fc
+Author: Egor Kovalenko <119003931+Egor1o@users.noreply.github.com>
+Date:   Mon Feb 2 00:53:44 2026 +0200
+
+    Add files via upload
+
+commit 88a4bddc2ad0291228a2df3f17b9eaf33f893b09
+Author: Egor Kovalenko <119003931+Egor1o@users.noreply.github.com>
+Date:   Mon Feb 2 00:53:20 2026 +0200
+
+    Delete report/10_ingestors.png
+
+commit a8f057a74fe109afd006499303975f818e36918a
+Author: Egor Kovalenko <119003931+Egor1o@users.noreply.github.com>
+Date:   Mon Feb 2 00:51:41 2026 +0200
+
+    10 ingestors grafana snippet.
+
+commit 9231137e2be7971efeeca33456dc4e297cf3e3ca
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Mon Feb 2 00:08:11 2026 +0200
+
+    Added real results for 1 ingestor.
+
+commit 24d67beb21a3dab237e26d4bfd56a7e4b4bb4146
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Sun Feb 1 23:56:26 2026 +0200
+
+    Adjusted report.
+
+commit f28c694ad67614f38a53b069635afc1b01b1b217
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Sun Feb 1 23:51:29 2026 +0200
+
+    Added performance results (mock), testing currently.
+
+commit 985d7c40e3cc2f95690af11c27a3f661294dc534
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Sun Feb 1 22:46:03 2026 +0200
+
+    Updated README.md
+
+commit 1e29b3e0dfcb9d831088446079471ec00d4a5928
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Sun Feb 1 22:29:18 2026 +0200
+
+    Added table throughput and response time. Added following functionality to ingestor, Added Grafana.
+
+commit ba0588a841d98031a89c7f4be6a372d851998747
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Sun Feb 1 20:08:58 2026 +0200
+
+    Updated README.md
+
+commit c5ac478163ed8a57072dbeddd43a5387c2cdab85
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Sun Feb 1 19:53:33 2026 +0200
+
+    Part 2. Point 1.
+
+commit 0cacc6dca5b8c0d38a69ff9fff16ccb06507661c
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Sun Feb 1 19:26:45 2026 +0200
+
+    Part 1. Points 4 and 5.
+
+commit 8f02e845e63d29bdd0f270ca99c791b477bba1f6
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Sun Feb 1 14:00:39 2026 +0200
+
+    Adjusted part 3.
+
+commit f046d1e06e46e1b1ae7725d1708be4bf03e50035
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Sun Feb 1 13:55:12 2026 +0200
+
+    Added part 3 explanation of fault resilience.
+
+commit 643f65a1c19eabda3449e6e00a6d33d1756ac1b2
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Fri Jan 30 21:10:14 2026 +0200
+
+    Added better fault tolerance, by providing reconnection possibility.
+
+commit ab7df851007528f79b8ed0a805b981f4d62f145c
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Fri Jan 30 00:45:38 2026 +0200
+
+    Added functionality enabling batching writing into core db.
+
+commit c9e1a6f621ed4eb55d9f0301027e159345452ce6
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Fri Jan 30 00:26:44 2026 +0200
+
+    Tested connection, fixed db connection link.
+
+commit 2b4aed0b5f501de112819fc4ce034e0eec57a824
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Fri Jan 30 00:10:15 2026 +0200
+
+    Added base migration for internal db.
+
+commit 92fbff1bca61cdc934def002daf3577415198ef6
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Thu Jan 29 23:52:27 2026 +0200
+
+    Fixed cluster nodes' settings and added ingestion instances to yaml.
+
+commit c399f614336a807416108be9bff00438cff4e70e
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Thu Jan 29 21:20:36 2026 +0200
+
+    Compose config for cockroachDB nodes, + range helper.
+
+commit 40943c41479ffe7bfd30d8b5f778c492dde21477
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Thu Jan 29 19:48:18 2026 +0200
+
+    Moved compose to the outter level. Made a config for executing multiple ingestor at the time.
+
+commit f7d58fb93b5c0e03a499eb82ad98b07c534df30c
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Thu Jan 29 00:47:39 2026 +0200
+
+    added typescript config and basic script for ingestion
+
+commit 9799550524a35d52d2e138df67375a723148e669
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Jan 28 21:04:30 2026 +0200
+
+    Explained architecture and key - components of the system.
+
+commit b6873e7f7dd4e4f877c074bab13633e4ca16444e
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Jan 28 20:08:00 2026 +0200
+
+    Set up a structure skeleton for the platform.
+
+commit b4ee5aab4c62d9ac6f684d59d1aaf257ae64a794
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Wed Jan 28 19:17:07 2026 +0200
+
+    Domain description and motivation for the first part.
+
+commit 9ecc3d84d44e5f3c48c76e1209b5deede603d56f
+Author: Egor1o <egorklo147@gmail.com>
+Date:   Tue Jan 27 21:02:42 2026 +0200
+
+    Added README template
