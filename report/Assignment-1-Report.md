@@ -180,6 +180,10 @@ The schema is designed to capture both the content of a comment and its associat
 identified by the Reddit comment id, which is used as the primary key to prevent duplicate ingestion. Additional
 fields store information about the subreddit, author, timestamps, and engagement metrics such as scores and upvotes.
 
+In addition to the comments table, the schema includes two tables for ingestion and consumption metrics respectively. They are
+used for monitoring and performance evaluation. These tables are not part of the tenant’s primary data model and are therefore
+not described in detail in this section.
+
 ### 2. Data partitioning and replication strategy
 
 Partitioning and replication strategies are left to CockroachDB, as it is able to perform them efficiently at the
