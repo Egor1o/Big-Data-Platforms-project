@@ -96,12 +96,11 @@ Before going down, please note the following:
    earlier in reality database is still up and ingestors are working, but Grafana will not be able to show any metrics until you
    reconnect it to any of the running nodes. So, prefer to close nodes that are not connected to Grafana first.
 3. Please check the README.md files in the code/ folder, as they will guide you through the code structure and the idea. 
-   Especially check code/db/README.md for instructions on how to get raw metrics from the database if you do not want to use Grafana.
-4. Check README.md in the data, in order to understand where to place the Reddit's database file.
+   Especially check code/mysimbdp-coredms/db/README.md for instructions on how to get raw metrics from the database if you do not want to use Grafana.
+4. Check README.md in the /data, in order to understand where to place the Reddit's database file.
 
 ### Cluster's monitoring
 When your CockroachDB cluster is up, you can see the state of one here: http://localhost:8080/#/overview/list
-
 
 ### Grafana setup
 
@@ -154,3 +153,5 @@ WHERE $__timeFilter(ts)
 GROUP BY 1
 ORDER BY 1;
 ```
+
+Notice that sample dataset is very small and your Grafana logs ill be very short. It is intentional.
