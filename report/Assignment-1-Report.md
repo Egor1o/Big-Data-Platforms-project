@@ -104,8 +104,14 @@ For any write operation to be committed, a quorum of replicas must agree on the 
 factor of three, a quorum consists of two replicas. As a result, the database can tolerate the failure of a single
 node while continuing to operate. If the failed node was the leader for a given range, leadership is automatically
 reassigned to another replica. However, if two out of three nodes become unavailable, the database can no longer achieve
-a quorum, and write operations are halted until at least one node is restored or a new node is added to the cluster.
+a quorum, and write operations are stopped until at least one node is restored or a new node is added to the cluster.
 The official documentation says the ```The number of failures that can be tolerated is equal to (Replication factor - 1)/2```
+
+The mysimbdp-coredms is deployed as a three-node CockroachDB cluster, which is sufficient to tolerate a single node failure.
+The nodes communicate using CockroachDB’s default communication port 26257 and each of them can be accessed
+by ingestors/consumers. Data is replicated across the nodes, and no single node is responsible for all data or coordination. As a result, the
+failure of any individual node does not create a single point of failure, and the database remains available as long as
+a quorum of nodes is maintained.
 
 In addition to the database-level fault tolerance, the second layer of fault tolerance is implemented at the ingestion/consumption
 level. Ingest/consumption workers continuously attempt to write/read data to the database and include retry logic to handle
