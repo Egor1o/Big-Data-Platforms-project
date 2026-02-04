@@ -73,7 +73,7 @@ At this point you should also be able to access the cluster's monitoring UI at h
 flyway_1  | Successfully applied 3 migrations to schema `public` (execution time 00:00.123s)
  .....
 ```
-After that check /code/db README to get instructions how to connect to db through terminal.
+After that check /code/mysimbdp-coredems README to get instructions how to connect to db through terminal.
 3. At this point if everything is correct, you can start ingestors or/and consumers. You will know they are working when
 you see logs like this:
 ```

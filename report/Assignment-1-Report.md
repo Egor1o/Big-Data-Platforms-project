@@ -203,7 +203,7 @@ By delegating partitioning and replication to CockroachDB, however, the platform
 from scalable performance and resilience with minimal operational complexity. But again, in the case of an actual big data
 platform, it is not enough to rely only on the automatic behavior of CockroachDB.
 
-In my case with 3 nodes the replication number is 3. You can check that too following instructions in /code/db/README.md. 
+In my case with 3 nodes the replication number is 3. You can check that too following instructions in /code/mysimdbp-coredms/README.md. 
 
 As here I'm referring to the CockroachDB own characteristics, here are the resources, that I got an inspiration from.
 * https://www.cockroachlabs.com/blog/automated-rebalance-and-repair
@@ -235,11 +235,11 @@ Documentation on multi-version concurrency control and clocks mentioned above:
 ### 4. Performance evaluation
 
 To calculate performance metrics, I created a table called ingest_metrics, where I track each insertion batch along with
-its timestamp, the number of rows inserted, and the batch latency. I use the same database for this purpose.
+its timestamp, the number of rows inserted, and the batch latency. 
 
-In other words, all metrics are written to the same CockroachDB cluster that is used for data ingestion. However, I do
-not consider this a problem, since the volume of metrics data is small and write operations are infrequent, making this
-workload trivial for CockroachDB to handle.
+I use the same database for this purpose. In other words, all metrics are written to the same CockroachDB cluster that 
+is used for data ingestion. However, I do not consider this a problem, since the volume of metrics data is small and write
+operations are infrequent, making this workload trivial for CockroachDB to handle.
 
 I will present the performance results in a table showing evaluations for 1, 5, and 10 ingest workers.
 The metrics are: throughput, response time (Latency) and their 95/99 percentiles. 
@@ -248,7 +248,7 @@ write performance of the system.
 
 I will also add graphs in my report, since I have added a configuration to Grafana to visualize the metrics data. I think
 that visualization is the best way for us humans to understand the result and even though it is not mandatory, actually
-for me, it was. So, please enjoy it too. Snapshots of the graphs are included in this folder. 
+for me, it was. So, please enjoy it too. Snapshots of the graphs are included in the logs' folder. 
 
 Please note that my configuration works in such a way that each worker is assigned a specific time range.
 This is done to divide workers into intervals. As a result, when running with 1 or 5 workers, not all data is actually
@@ -268,6 +268,20 @@ expectations that reassigning the hierarchy in the DB cluster would take time, e
 process in the 10-ingestors case—this did not happen. There was a barely noticeable drop in performance, and it was not
 sufficient to stop the database from operating. Bringing the node instance back online did not seem to affect the
 situation either positively or negatively.
+
+I did not include any failures here, as I did not encounter any. The only failures observed occurred during node
+shutdown and reconnection.
+
+Since CockroachDB enforces strong consistency by default and no alternative consistency modes were enabled, and no failures
+occurred under normal ingestion, there were no additional consistency options to evaluate, and this point was left as is.
+
+One additional thing related to this point that I did not include in the logs is testing with a different number of 
+database nodes. In addition to the original configuration with three nodes, I also performed tests with a five-node
+cluster. As expected, there were no noticeable improvements in the ingestion process, since the replication factor 
+remained the same. Even though the cluster had more nodes, each write operation still required acknowledgments from 
+the same number of replicas, so the overall write performance did not change significantly.
+
+You can check that as well. Again to access the node in db, check /code/mysimpdb-coredms
 
 
 ### 5. Data consumption and query performance
