@@ -100,6 +100,14 @@ services:
     depends_on:
       - cockroach-1
 
+  tenant-a:
+    build: ./code2/tenants/tenant-a
+    environment:
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+      - TENANT_ID=tenantA
+    depends_on:
+      - cockroach-1
+
 
   ingest-1:
     build: ./code/ingest
