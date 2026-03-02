@@ -40,8 +40,8 @@ is an internal user, resource allocation still reflects actual usage. In the cas
 resource consumption would directly correspond to billing, since tenants effectively pay for the resources they use.
 
 ### 2. Design and implementation of mysimbdp-streamingestmanager
-Manager service is implemented as a Node.js script, which defines two functions `startWorker` and `stopWorker`.
-These functions can be triggered through a Kafka topic called `manager-control`. In a real-world scenario, I would rather
+Manager service is implemented as a Node.js script, which defined `scaleWorkers` function.
+The function can be triggered through a Kafka topic called `manager-control`. In a real-world scenario, I would rather
 introduce an API with proper authorization and a database layer that stores tenant information, including the allowed
 number of replicas and the thresholds for scaling up or down.
 
