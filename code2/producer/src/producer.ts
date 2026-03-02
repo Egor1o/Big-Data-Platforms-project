@@ -9,6 +9,8 @@ const kafka = new Kafka({
 
 const producer = kafka.producer();
 
+const TENANT_TOPIC = process.env.TENANT_TOPIC ?? 'tenantA-bronze'
+
 const stmt = db.prepare(`
     SELECT *
     FROM May2015
@@ -66,4 +68,4 @@ export const produceMessagesToKafka = async (
 };
 
 
-produceMessagesToKafka("tenantA-bronze", MAY_START, MAY_HALF)
+produceMessagesToKafka(TENANT_TOPIC, MAY_START, MAY_HALF)

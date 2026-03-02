@@ -93,10 +93,21 @@ services:
       - cockroach-1
 
 
-  producer-1:
+  producer-a:
     build: ./code2/producer
     volumes:
       - ./data:/data:ro
+    environment:
+      TENANT_TOPIC: tenantA-bronze
+    depends_on:
+      - cockroach-1
+
+  producer-b:
+    build: ./code2/producer
+    volumes:
+      - ./data:/data:ro
+    environment:
+      TENANT_TOPIC: tenantB-bronze
     depends_on:
       - cockroach-1
 
@@ -108,6 +119,13 @@ services:
     depends_on:
       - cockroach-1
 
+  tenant-b:
+    build: ./code2/tenants/tenant-b
+    environment:
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+      - TENANT_ID=tenantB
+    depends_on:
+      - cockroach-1
 
   ingest-1:
     build: ./code/ingest
