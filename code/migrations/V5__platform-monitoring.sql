@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS ingest_metrics (
     worker_id STRING NOT NULL,
     ts TIMESTAMP DEFAULT now(),
     rows_inserted INT,
-    batch_latency_ms INT
+    ingestion_bytes INT,
+    avg_batch_latency_ms INT
     );

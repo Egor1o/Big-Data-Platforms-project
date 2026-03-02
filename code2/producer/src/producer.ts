@@ -9,7 +9,7 @@ const kafka = new Kafka({
 
 const producer = kafka.producer();
 
-const TENANT_TOPIC = process.env.TENANT_TOPIC ?? 'tenantA-bronze'
+const TENANT_TOPIC = process.env.TENANT_TOPIC ?? 'tenant-a-bronze'
 
 const stmt = db.prepare(`
     SELECT *

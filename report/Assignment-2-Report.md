@@ -40,10 +40,49 @@ is an internal user, resource allocation still reflects actual usage. In the cas
 resource consumption would directly correspond to billing, since tenants effectively pay for the resources they use.
 
 ### 2. Design and implementation of mysimbdp-streamingestmanager
+Manager service is implemented as a Node.js script, which defines two functions `startWorker` and `stopWorker`.
+These functions can be triggered through a Kafka topic called `manager-control`. In a real-world scenario, I would rather
+introduce an API with proper authorization and a database layer that stores tenant information, including the allowed
+number of replicas and the thresholds for scaling up or down.
+
+In my current implementation, when the manager is started, there is a hardcoded configuration for tenants A and B.
+In this configuration, the topic name, minimum number of workers, and maximum number of workers are defined. The manager
+stores the current number of workers in memory, more precisely in the `currentWorkers` variable, which is a map of tenant
+name to the number of active workers. In a real-world system, this would normally be handled by a proper orchestration
+platform such as Kubernetes, but for this assignment I assume my implementation is sufficient.
+
+The scaling functionality of the manager is implemented in a blackbox manner by executing shell commands that increase
+or decrease the number of replicas for the corresponding tenant worker service. The manager does not need to know anything
+about the internal logic of the worker, as long as the worker follows the required contract (environment variables,
+topic naming, graceful shutdown, etc.). For simplicity, this component is executed outside of Docker, since running
+it inside a container would require additional Docker-in-Docker configuration.
+
+Thresholds as said before would be best to place as a field in a tenant-related database, but in my case I define it
+on the manager level already. 
+
+By default I configured manager so that it can be used as a starting point of the application that starts 1 worker for
+each tenant, and further just listens for the monitor service.
+
 
 ### 3. Implementation of streamingestworker for multiple tenants and performance evaluation
 
+
 ### 4. Observability and reporting with mysimbdp-streamingestmonitor
+For monitoring purposes, I created a dedicated migration `V5__platform-monitoring` which defines the table `ingest_metrics`
+in the `mysimbdp_platform` database. The table stores tenant id, worker id, timestamp, number of processed records,
+total ingestion size in bytes, and average batch latency in milliseconds.
+
+The report format is a structured JSON message containing: tenant_id, worker_id, timestamp, rows_inserted, ingestion_bytes,
+and avg_batch_latency_ms. All fields in JSON have the same names as ones above. For the types you can refer to the `ingest_metrics` table schema.
+
+Each streamingestworker aggregates its performance metrics over a fixed interval (15 seconds). During this period, it counts
+how many records were processed, sums the size of all consumed Kafka messages in bytes, and computes the average latency
+of batch inserts. Instead of reporting every operation, the worker sends one composed metrics message per interval, which
+is a good approach as it does not overwhelm metrics db table.
+
+The metrics are published to a dedicated Kafka topic (`metrics`). The mysimbdp-streamingestmonitor consumes these messages
+and stores them in the monitoring `ingest_metrics` table. This way, workers stay lightweight and decoupled from the monitoring database,
+and the monitor acts as the observability component of the platform.
 
 ### 5. Adaptive management and scaling based on monitoring
 

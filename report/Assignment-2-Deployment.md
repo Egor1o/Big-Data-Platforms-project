@@ -24,23 +24,10 @@ docker compose up -d kafka --build
 
 5. Run Kafka topic initializers of tenants:
 ```sh
-docker exec -it kafka /opt/kafka/bin/kafka-topics.sh \
-  --create \
-  --if-not-exists \
-  --topic tenantA-bronze \
-  --bootstrap-server kafka:9092 \
-  --partitions 5 \
-  --replication-factor 1
-```
-
-```sh
-docker exec -it kafka /opt/kafka/bin/kafka-topics.sh \
-  --create \
-  --if-not-exists \
-  --topic tenantB-bronze \
-  --bootstrap-server kafka:9092 \
-  --partitions 5 \
-  --replication-factor 1
+docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic tenant-a-bronze --bootstrap-server kafka:9092 --partitions 5 --replication-factor 1 && \
+docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic tenant-b-bronze --bootstrap-server kafka:9092 --partitions 5 --replication-factor 1 && \
+docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic metrics --bootstrap-server kafka:9092 --partitions 2 --replication-factor 1 && \
+docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic manager-control --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1
 ```
 
 6. fff

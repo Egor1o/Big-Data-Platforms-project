@@ -98,7 +98,7 @@ services:
     volumes:
       - ./data:/data:ro
     environment:
-      TENANT_TOPIC: tenantA-bronze
+      TENANT_TOPIC: tenant-a-bronze
     depends_on:
       - cockroach-1
 
@@ -107,23 +107,32 @@ services:
     volumes:
       - ./data:/data:ro
     environment:
-      TENANT_TOPIC: tenantB-bronze
+      TENANT_TOPIC: tenant-b-bronze
     depends_on:
       - cockroach-1
 
-  tenant-a:
+  tenant-a-worker:
     build: ./code2/tenants/tenant-a
     environment:
+      - TENANT_ID=tenant-a
       - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-      - TENANT_ID=tenantA
     depends_on:
       - cockroach-1
 
-  tenant-b:
+  stream-ingest-manager:
+    build: ./code2/stream-ingest-manager
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app
+    environment:
+      - TENANT_ID=tenant-a
+      - REPLICAS=3
+
+  tenant-b-worker:
     build: ./code2/tenants/tenant-b
     environment:
       - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-      - TENANT_ID=tenantB
+      - TENANT_ID=tenant-b
     depends_on:
       - cockroach-1
 
