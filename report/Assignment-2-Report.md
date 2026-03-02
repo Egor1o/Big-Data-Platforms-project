@@ -85,7 +85,19 @@ and stores them in the monitoring `ingest_metrics` table. This way, workers stay
 and the monitor acts as the observability component of the platform.
 
 ### 5. Adaptive management and scaling based on monitoring
+As mentioned before, the monitor receives metrics reports from streamingestworker through the `metrics` Kafka topic.
+Each report contains aggregated information about the worker performance.
 
+The mysimbdp-streamingestmonitor evaluates these metrics against predefined thresholds. If the average ingestion
+time exceeds or drops below the defined limits, the monitor decides which action should be taken (scale_up or scale_down).
+It then publishes a message to the `manager-control` Kafka topic containing the tenant id and the requested action.
+
+The mysimbdp-streamingestmanager subscribes to the `manager-control` topic and reacts to these messages. Based on the
+received action, it adjusts the number of worker replicas for the corresponding tenant. The manager enforces boundaries
+defined in its configuration - never scales below one worker per tenant and never goes over the maximum number of replicas
+specified in the config.
+
+//TODO DEMONSTRATE WHAT?
 
 ## Part 2 – Silver Data Transformation with Batch Processing
 
