@@ -119,14 +119,13 @@ services:
     depends_on:
       - cockroach-1
 
-  stream-ingest-manager:
-    build: ./code2/stream-ingest-manager
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - .:/app
+  stream-ingest-monitor:
+    build: ./code2/stream-ingest-monitor
     environment:
-      - TENANT_ID=tenant-a
-      - REPLICAS=3
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/mysimbdp_platform?sslmode=disable
+    depends_on:
+      - kafka
+      - cockroach-1
 
   tenant-b-worker:
     build: ./code2/tenants/tenant-b
