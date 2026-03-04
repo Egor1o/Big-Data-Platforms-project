@@ -68,4 +68,4 @@ export const produceMessagesToKafka = async (
 };
 
 
-produceMessagesToKafka(TENANT_TOPIC, MAY_START, MAY_HALF)
+produceMessagesToKafka(TENANT_TOPIC, TENANT_TOPIC === 'tenant-a-bronze' ? MAY_START : MAY_HALF, TENANT_TOPIC === 'tenant-a-bronze' ? MAY_HALF : MAY_END)
