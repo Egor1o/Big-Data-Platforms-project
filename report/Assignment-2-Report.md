@@ -65,6 +65,47 @@ each tenant, and further just listens for the monitor service.
 
 
 ### 3. Implementation of streamingestworker for multiple tenants and performance evaluation
+Even though I have already implemented the monitoring system and the manager, I will test the system without the manager
+and instead use manually launched workers. I am doing this because I assume that, at this stage of the task, the monitor
+has not yet been implemented.
+
+I would also like to clarify that I will not include producer latency or the time it takes for the topic to deliver a
+message to the consumer. Instead, I will measure the raw insertion time over a 10-second period, since each worker
+reports the work completed during that interval and I start them on the same moment. The reason for the 10 second period
+time can be found in 1.4.
+
+There is no major difference in the way tenant-b and tenant-a workers are implemented. Both map the entire row received
+from the producer and, every 10 seconds, notify the monitor about the completion of their operations. In practice,
+the monitoring system is the component that stores the ingestion metrics. I do not see any significant overhead in
+this communication design, since the metrics topic is extremely small compared to the topics from which the workers
+consume ingestion data.
+
+The results are quite interesting. According to the data, a single ingestor performs better than ten ingestors
+running at the same time, which indicates some improper planning of the system. After looking deeper into how Kafka works,
+I observed something important about the consumer model. A consumer group, which is a group of consumers assigned
+to the same topic, distributes partitions in such a way that each partition can be consumed by only one consumer
+at a time. This guarantees ordering of message offsets within a partition. However, a consumer can be assigned
+to multiple partitions.
+
+In my tests with 10 workers, the topic had only 5 partitions. This means the consumer group manager could assign only 5
+workers to actively consume messages at any given time. The remaining workers would remain idle. Therefore, if a bottleneck
+occurs within a partition, one worker may effectively become blocked. On the other hand, when there is only one worker
+and five partitions, that single worker can process multiple partitions concurrently. In this scenario, a blocked partition
+does not affect the overall system as significantly. I believe this is the main reason why one worker outperformed ten
+workers in my tests.
+
+I have also tested the approach with 10 workers and 30 partitions, additionally adding two replicas of each producer.
+However, I did not observe any significant improvement or degradation in performance. This indicates that the bottleneck
+is much more likely located in the database layer and related to the issues discussed in the first assignment, rather
+than in the Kafka consumer model.
+
+| Tenant     | Ingest Workers | Avg. Throughput (rows/s) | Avg. Throughput (bytes/s)   | Avg. Latency (ms) | P95 Latency (ms) | P99 Latency (ms) |
+|------------|----------------|--------------------------|-----------------------------|-------------------|------------------|------------------|
+| tenant-a   | 1              | 40809                    | 24711461                    | 8.6               | 115.7            | 110.3            |
+| tenant-a   | 10             | 32161                    | 19474645                    | 83.0              | 497.1            | 1297.5           |
+| tenant-b   | 1              | 36801                    | 22361587                    | 9.8               | 120.3            | 130.3            |
+| tenant-b   | 10             | 31944                    | 19392173                    | 71.4              | 380.8            | 1028.7           |
+
 
 
 ### 4. Observability and reporting with mysimbdp-streamingestmonitor
@@ -75,7 +116,7 @@ total ingestion size in bytes, and average batch latency in milliseconds.
 The report format is a structured JSON message containing: tenant_id, worker_id, timestamp, rows_inserted, ingestion_bytes,
 and avg_batch_latency_ms. All fields in JSON have the same names as ones above. For the types you can refer to the `ingest_metrics` table schema.
 
-Each streamingestworker aggregates its performance metrics over a fixed interval (15 seconds). During this period, it counts
+Each streamingestworker aggregates its performance metrics over a fixed interval (10 seconds). During this period, it counts
 how many records were processed, sums the size of all consumed Kafka messages in bytes, and computes the average latency
 of batch inserts. Instead of reporting every operation, the worker sends one composed metrics message per interval, which
 is a good approach as it does not overwhelm metrics db table.

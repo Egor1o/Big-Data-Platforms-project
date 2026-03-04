@@ -43,7 +43,7 @@ docker compose up stream-ingest-monitor --build
 7. Now you can start either manager, which will scale replicas, or start workers manually:
 - For manager: go to the folder /code2/stream-ingest-manager and run:
 ```sh
-npm run build && node dist/producer.js
+cd code2/stream-ingest-manager && npm run build && node dist/producer.js
 ```
 - to start workers manually, run:
 ```shell
@@ -52,7 +52,7 @@ docker compose up -d --build --scale tenant-<index>-worker=<replication factor> 
 
 8. Start message producers for tenants:
 ```sh
-docker compose up producer-a producer-b --build
+docker compose up producer-a producer-b -d --build
 ```
 
 
@@ -101,7 +101,7 @@ Grafana queris:
 ```sql
 SELECT
     $__timeGroupAlias(ts, '10s'),
-    SUM(rows_inserted) AS value
+    SUM(rows_inserted) AS rowsInsertedA
 FROM mysimbdp_platform.ingest_metrics
 WHERE $__timeFilter(ts)
   AND tenant_id = 'tenant-a'
@@ -112,7 +112,7 @@ ORDER BY 1;
 ```sql
 SELECT
 $__timeGroupAlias(ts, '10s'),
-SUM(rows_inserted) AS value
+SUM(rows_inserted) AS rowsInsertedB
 FROM mysimbdp_platform.ingest_metrics
 WHERE $__timeFilter(ts)
 AND tenant_id = 'tenant-b'
@@ -123,7 +123,7 @@ ORDER BY 1;
 ```sql
 SELECT
   $__timeGroupAlias(ts, '10s'),
-  AVG(avg_batch_latency_ms) AS value
+  AVG(avg_batch_latency_ms) AS 
 FROM mysimbdp_platform.ingest_metrics
 WHERE $__timeFilter(ts)
   AND tenant_id = 'tenant-a'
