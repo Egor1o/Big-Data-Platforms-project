@@ -10,7 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node src/worker.ts",
     "build": "tsc",
-    "start": "node dist/worker.js"
+    "start": "node dist/worker.js",
+    "silver": "node dist/silverpipeline/silverpipeline.js"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",

@@ -119,6 +119,14 @@ services:
     depends_on:
       - cockroach-1
 
+  tenant-a-silver:
+    build: ./code2/tenants/tenant-a
+    command: npm run silver
+    environment:
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/tenanta?sslmode=disable
+    depends_on:
+      - cockroach-1
+
   stream-ingest-monitor:
     build: ./code2/stream-ingest-monitor
     environment:
@@ -135,155 +143,163 @@ services:
     depends_on:
       - cockroach-1
 
-  ingest-1:
-    build: ./code/ingest
+  tenant-b-silver:
+    build: ./code2/tenants/tenant-b
+    command: npm run silver
     environment:
-      - WORKER_ID=0
-      - WORKERS=10
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    volumes:
-      - ./data:/data:ro
+      - DATABASE_URL=postgresql://root@cockroach-1:26257/tenantb?sslmode=disable
     depends_on:
       - cockroach-1
 
-  ingest-2:
-    build: ./code/ingest
-    environment:
-      - WORKER_ID=1
-      - WORKERS=10
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    volumes:
-      - ./data:/data:ro
-    depends_on:
-      - cockroach-1
-
-  ingest-3:
-    build: ./code/ingest
-    environment:
-      - WORKER_ID=2
-      - WORKERS=10
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    volumes:
-      - ./data:/data:ro
-    depends_on:
-      - cockroach-1
-
-  ingest-4:
-    build: ./code/ingest
-    environment:
-      - WORKER_ID=3
-      - WORKERS=10
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    volumes:
-      - ./data:/data:ro
-    depends_on:
-      - cockroach-1
-
-  ingest-5:
-    build: ./code/ingest
-    environment:
-      - WORKER_ID=4
-      - WORKERS=10
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    volumes:
-      - ./data:/data:ro
-    depends_on:
-      - cockroach-1
-
-  ingest-6:
-    build: ./code/ingest
-    environment:
-      - WORKER_ID=5
-      - WORKERS=10
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    volumes:
-      - ./data:/data:ro
-    depends_on:
-      - cockroach-1
-
-  ingest-7:
-    build: ./code/ingest
-    environment:
-      - WORKER_ID=6
-      - WORKERS=10
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    volumes:
-      - ./data:/data:ro
-    depends_on:
-      - cockroach-1
-
-  ingest-8:
-    build: ./code/ingest
-    environment:
-      - WORKER_ID=7
-      - WORKERS=10
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    volumes:
-      - ./data:/data:ro
-    depends_on:
-      - cockroach-1
-
-  ingest-9:
-    build: ./code/ingest
-    environment:
-      - WORKER_ID=8
-      - WORKERS=10
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    volumes:
-      - ./data:/data:ro
-    depends_on:
-      - cockroach-1
-
-  ingest-10:
-    build: ./code/ingest
-    environment:
-      - WORKER_ID=9
-      - WORKERS=10
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    volumes:
-      - ./data:/data:ro
-    depends_on:
-      - cockroach-1
-
-  consumer-1:
-    build: ./code/consumer
-    environment:
-      - WORKER_ID=1
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    depends_on:
-      - cockroach-1
-
-  consumer-2:
-    build: ./code/consumer
-    environment:
-      - WORKER_ID=2
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    depends_on:
-      - cockroach-1
-
-  consumer-3:
-    build: ./code/consumer
-    environment:
-      - WORKER_ID=3
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    depends_on:
-      - cockroach-1
-
-  consumer-4:
-    build: ./code/consumer
-    environment:
-      - WORKER_ID=4
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    depends_on:
-      - cockroach-1
-
-  consumer-5:
-    build: ./code/consumer
-    environment:
-      - WORKER_ID=5
-      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
-    depends_on:
-      - cockroach-1
+#  ingest-1:
+#    build: ./code/ingest
+#    environment:
+#      - WORKER_ID=0
+#      - WORKERS=10
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    volumes:
+#      - ./data:/data:ro
+#    depends_on:
+#      - cockroach-1
+#
+#  ingest-2:
+#    build: ./code/ingest
+#    environment:
+#      - WORKER_ID=1
+#      - WORKERS=10
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    volumes:
+#      - ./data:/data:ro
+#    depends_on:
+#      - cockroach-1
+#
+#  ingest-3:
+#    build: ./code/ingest
+#    environment:
+#      - WORKER_ID=2
+#      - WORKERS=10
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    volumes:
+#      - ./data:/data:ro
+#    depends_on:
+#      - cockroach-1
+#
+#  ingest-4:
+#    build: ./code/ingest
+#    environment:
+#      - WORKER_ID=3
+#      - WORKERS=10
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    volumes:
+#      - ./data:/data:ro
+#    depends_on:
+#      - cockroach-1
+#
+#  ingest-5:
+#    build: ./code/ingest
+#    environment:
+#      - WORKER_ID=4
+#      - WORKERS=10
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    volumes:
+#      - ./data:/data:ro
+#    depends_on:
+#      - cockroach-1
+#
+#  ingest-6:
+#    build: ./code/ingest
+#    environment:
+#      - WORKER_ID=5
+#      - WORKERS=10
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    volumes:
+#      - ./data:/data:ro
+#    depends_on:
+#      - cockroach-1
+#
+#  ingest-7:
+#    build: ./code/ingest
+#    environment:
+#      - WORKER_ID=6
+#      - WORKERS=10
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    volumes:
+#      - ./data:/data:ro
+#    depends_on:
+#      - cockroach-1
+#
+#  ingest-8:
+#    build: ./code/ingest
+#    environment:
+#      - WORKER_ID=7
+#      - WORKERS=10
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    volumes:
+#      - ./data:/data:ro
+#    depends_on:
+#      - cockroach-1
+#
+#  ingest-9:
+#    build: ./code/ingest
+#    environment:
+#      - WORKER_ID=8
+#      - WORKERS=10
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    volumes:
+#      - ./data:/data:ro
+#    depends_on:
+#      - cockroach-1
+#
+#  ingest-10:
+#    build: ./code/ingest
+#    environment:
+#      - WORKER_ID=9
+#      - WORKERS=10
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    volumes:
+#      - ./data:/data:ro
+#    depends_on:
+#      - cockroach-1
+#
+#  consumer-1:
+#    build: ./code/consumer
+#    environment:
+#      - WORKER_ID=1
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    depends_on:
+#      - cockroach-1
+#
+#  consumer-2:
+#    build: ./code/consumer
+#    environment:
+#      - WORKER_ID=2
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    depends_on:
+#      - cockroach-1
+#
+#  consumer-3:
+#    build: ./code/consumer
+#    environment:
+#      - WORKER_ID=3
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    depends_on:
+#      - cockroach-1
+#
+#  consumer-4:
+#    build: ./code/consumer
+#    environment:
+#      - WORKER_ID=4
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    depends_on:
+#      - cockroach-1
+#
+#  consumer-5:
+#    build: ./code/consumer
+#    environment:
+#      - WORKER_ID=5
+#      - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
+#    depends_on:
+#      - cockroach-1
 
 volumes:
   crdb1:

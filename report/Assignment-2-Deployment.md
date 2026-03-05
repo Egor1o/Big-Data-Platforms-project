@@ -29,8 +29,8 @@ docker compose up -d kafka --build
 
 5. Run Kafka topic initializers of tenants:
 ```sh
-docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic tenant-a-bronze --bootstrap-server kafka:9092 --partitions 5 --replication-factor 1 && \
-docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic tenant-b-bronze --bootstrap-server kafka:9092 --partitions 5 --replication-factor 1 && \
+docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic tenant-a-bronze --bootstrap-server kafka:9092 --partitions 10 --replication-factor 1 && \
+docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic tenant-b-bronze --bootstrap-server kafka:9092 --partitions 10 --replication-factor 1 && \
 docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic metrics --bootstrap-server kafka:9092 --partitions 2 --replication-factor 1 && \
 docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic manager-control --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1
 ```
@@ -53,6 +53,11 @@ docker compose up -d --build --scale tenant-<index>-worker=<replication factor> 
 8. Start message producers for tenants:
 ```sh
 docker compose up producer-a producer-b -d --build
+```
+
+9. Get silverpipeline runners up:
+```shell
+docker compose run --rm tenant-b-silver 
 ```
 
 

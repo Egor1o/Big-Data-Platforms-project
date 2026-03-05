@@ -10,4 +10,18 @@ CREATE TABLE IF NOT EXISTS comments_likes (
    created_utc INT
 );
 
+CREATE TABLE IF NOT EXISTS silver_subreddit_engagement_stats (
+  subreddit STRING PRIMARY KEY,
+  total_comments INT,
+  total_ups INT,
+  total_downs INT,
+  avg_score FLOAT,
+  avg_engagement_ratio FLOAT
+);
+
+CREATE TABLE IF NOT EXISTS silver_pipeline_state (
+  pipeline_name STRING PRIMARY KEY,
+  last_processed_id STRING
+);
+
 
