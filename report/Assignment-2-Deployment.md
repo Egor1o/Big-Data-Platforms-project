@@ -40,24 +40,29 @@ docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --
 docker compose up stream-ingest-monitor --build
 ```
 
-7. Now you can start either manager, which will scale replicas, or start workers manually:
+7. Prebuild tenants. This is needed for silverpipelines execution:
+```sh
+docker compose build tenant-a-silver && docker compose build tenant-b-silver
+````
+
+8. Now you can start either manager, which will scale replicas, or start workers manually:
 - For manager: go to the folder /code2/stream-ingest-manager and run:
 ```sh
-cd code2/stream-ingest-manager && npm run build && node dist/producer.js
+cd code2/stream-ingest-manager && npm run build && node dist/index.js
 ```
 - to start workers manually, run:
 ```shell
 docker compose up -d --build --scale tenant-<index>-worker=<replication factor> tenant-<index>-worker
 ```
 
-8. Start message producers for tenants:
+9. Start message producers for tenants:
 ```sh
 docker compose up producer-a producer-b -d --build
 ```
 
-9. Get silverpipeline runners up:
+10. Get batchmaager for silvepipelines up:
 ```shell
-docker compose run --rm tenant-b-silver 
+cd code2/batchmanager && npm run build && npm run start
 ```
 
 

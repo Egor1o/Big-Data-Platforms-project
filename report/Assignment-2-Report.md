@@ -143,8 +143,78 @@ specified in the config.
 ## Part 2 – Silver Data Transformation with Batch Processing
 
 ### 1. Service agreement constraints for tenant pipelines
+From the bronze layer, tenants design their **own silver transformation pipelines**. These pipelines read bronze tables
+and generate processed, analytics-ready silver tables. Since multiple tenants share the same infrastructure, mysimbdp
+must enforce a set of service agreement constraints to prevent one tenant from exhausting platform resources.
+
+The platform supports the following constraint schema for silver pipelines:
+
+- `max_execution_time_seconds` – maximum allowed runtime of a single pipeline execution. If exceeded, the pipeline process is terminated.
+- `max_memory_mb` – memory limit for the pipeline process (not implemented in this assignment to avoid overcomplication, but included in the design as a required production-level constraint).
+- `max_parallel_pipelines` – maximum number of concurrent silver pipelines allowed per tenant.
+- `max_input_rows` – maximum number of bronze rows that can be processed in a single run.
+- `max_retries` – maximum number of retry attempts in case of pipeline failure.
+- `backoff_seconds` – waiting time before retrying after a failed execution.
+
+These constraints are validated and enforced by `mysimbdp-batchmanager` before invoking a tenant’s silver pipeline.
+If a pipeline violates its agreement (for example exceeds execution time or parallel execution limit), execution is
+either rejected or forcibly terminated.
+
+Silver pipelines may perform heavy aggregations such as grouping by subreddit and computing statistical
+metrics. Without limits, one tenant could consume excessive CPU, memory, or database resources, negatively affecting
+other tenants and degrading overall platform performance.
+
+Below are two example tenant configurations:
+
+### Tenant A
+
+```json
+{
+  "tenant_id": "tenant-a",
+  "max_execution_time_seconds": 600,
+  // "max_memory_mb": 2048,
+  "max_parallel_pipelines": 2,
+  "max_input_rows": 1000000,
+  "max_retries": 3,
+  "backoff_seconds": 10
+}
+```
+
+### Tenant B
+
+```json 
+{
+"tenant_id": "tenant-b",
+"max_execution_time_seconds": 300, 
+  // "max_memory_mb": 1024,
+"max_parallel_pipelines": 1,
+"max_input_rows": 500000,
+"max_retries": 2,
+"backoff_seconds": 5
+}
+```
 
 ### 2. Design and implementation of silverpipeline
+Pipeline are caching data in files marked with the timestamp in the form `batch-<timestamp>.json`. Each caching
+directory belongs to the tenant space and is logically isolated from other tenants. The pipeline reads data from the
+bronze table in batches, limited by `max_input_rows`, and writes the extracted rows into a JSON file inside the
+tenant’s caching directory.
+
+After the extraction phase is completed and the batch file is written, the pipeline reads the data back from the cached
+file and performs tenant-specific transformation logic on the file contents. This ensures that transformation is
+decoupled from direct bronze database queries and simulates a more realistic batch-processing architecture.
+
+The pipeline always saves the identifier of the last processed bronze row in the `silver_pipeline_state` table.
+This checkpoint mechanism allows the pipeline to resume from the last successfully processed record in case of failure.
+Additionally, since the extracted batch is stored as a JSON file, if the silver pipeline fails, it can be rerun using
+the cached batch. This also makes it possible to inspect problematic batches during debugging.
+
+For the tenant-a implementation, the pipeline collects engagement metrics per subreddit, such as total comments,
+total ups, total downs, average score, and engagement ratio. For tenant-b, the pipeline analyzes controversy by
+subreddit, calculating the total number of controversial comments and the average controversiality value.
+
+This design satisfies the requirement that silverpipeline extracts bronze data, stores intermediate results in
+tenant-caching-dir, transforms cached data, and produces silver outputs while operating under platform-controlled execution.
 
 ### 3. Design and implementation of mysimbdp-batchmanager
 

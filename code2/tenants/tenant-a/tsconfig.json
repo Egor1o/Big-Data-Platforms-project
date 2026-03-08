@@ -6,6 +6,7 @@
     "module": "nodenext",
     "target": "esnext",
 
+    "resolveJsonModule": true,
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,

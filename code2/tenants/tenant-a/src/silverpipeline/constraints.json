@@ -1,0 +1,8 @@
+{
+  "tenant_id": "tenant-a",
+  "max_execution_time_seconds": 600,
+  "max_parallel_pipelines": 2,
+  "max_input_rows": 1000000,
+  "max_retries": 3,
+  "backoff_seconds": 10
+}
