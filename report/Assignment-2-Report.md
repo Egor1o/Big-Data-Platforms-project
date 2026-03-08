@@ -217,6 +217,34 @@ This design satisfies the requirement that silverpipeline extracts bronze data, 
 tenant-caching-dir, transforms cached data, and produces silver outputs while operating under platform-controlled execution.
 
 ### 3. Design and implementation of mysimbdp-batchmanager
+Batchmanager is indeed a black-box launcher in the full meaning of this word. It is implemented as a continuously running
+service that periodically attempts to execute tenant silver pipelines. The configuration for tenants is currently
+hardcoded in the manager as a simple object that defines the maximum number of parallel pipeline executions per tenant.
+In a more advanced implementation, this configuration could be stored in a database and dynamically managed, but for the
+purposes of this assignment a static configuration is sufficient.
+
+Batch manager maintains in-memory state that tracks the number of currently running pipelines per tenant. Before launching
+a new pipeline, it checks whether the number of running pipelines has reached the configured `max_parallel_runs` limit.
+If the limit has not been reached, the manager executes the corresponding silver pipeline as a separate process using
+Docker Compose. If the limit has already been reached, it logs a message indicating that the maximum number of parallel
+pipelines has been reached and skips execution for that tenant.
+
+The silver pipelines are treated strictly as blackbox executables. The batch manager does not inspect or interact with
+their internal logic. It simply starts the pipeline container and waits for it to finish. The pipeline itself is
+responsible for exiting with the appropriate status code, allowing the manager to determine whether
+execution was successful or failed.
+
+Scheduling is implemented using a simple interval-based mechanism. Every 10 seconds, the batch manager iterates over the
+configured tenants and attempts to launch their silver pipelines. If there is no new bronze data to process, the pipeline
+exits immediately after performing its internal checks.
+
+The enforcement of constraints is divided between the batch manager and the pipeline. The batch manager enforces the
+`max_parallel_runs` constraint and controls when pipelines are launched. Execution time limits and retry policies are
+validated inside the pipeline implementation itself.
+
+While this design is simplified and does not include advanced features such as dynamic resource monitoring, priority
+queues, or CPU and memory tracking, it is sufficient to demonstrate the concept of a batch manager and its role in
+coordinating tenant-specific silver pipelines within a multi-tenant big data platform.
 
 ### 4. Testing, constraint validation, and performance evaluation
 
