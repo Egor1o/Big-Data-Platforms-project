@@ -138,7 +138,131 @@ received action, it adjusts the number of worker replicas for the corresponding 
 defined in its configuration - never scales below one worker per tenant and never goes over the maximum number of replicas
 specified in the config.
 
-//TODO DEMONSTRATE WHAT?
+These are the logs from manager and monitoring system demonstrating workflow depended on the workload. At the start
+scaling up, at the end scaling down.
+
+```logs
+Logs from manager:
+
+Managing tenants: [ 'tenant-a', 'tenant-b' ]
+Scaling tenant-a to 1 workers
+Scaling tenant-b to 1 workers
+{"level":"INFO","timestamp":"2026-03-10T13:04:11.316Z","logger":"kafkajs","message":"[Consumer] Starting","groupId":"manager-group"}
+{"level":"INFO","timestamp":"2026-03-10T13:04:14.366Z","logger":"kafkajs","message":"[ConsumerGroup] Consumer has joined the group","groupId":"manager-group","memberId":"kafkajs-54d1e7bb-4416-4dd8-8747-c480aa5c3604","leaderId":"kafkajs-54d1e7bb-4416-4dd8-8747-c480aa5c3604","isLeader":true,"memberAssignment":{"manager-control":[0]},"groupProtocol":"RoundRobinAssigner","duration":3048}
+tenant-a at minimum workers, not scaling down
+tenant-b at minimum workers, not scaling down
+tenant-a at minimum workers, not scaling down
+Scaling tenant-b to 2 workers
+Scaling tenant-a to 2 workers
+Scaling tenant-b to 3 workers
+Scaling tenant-b to 4 workers
+Scaling tenant-a to 3 workers
+Scaling tenant-a to 4 workers
+tenant-b already at max workers
+tenant-b already at max workers
+tenant-b already at max workers
+tenant-b already at max workers
+Scaling tenant-a to 5 workers
+tenant-a already at max workers
+tenant-a already at max workers
+Scaling tenant-b to 3 workers
+tenant-a already at max workers
+tenant-a already at max workers
+Scaling tenant-b to 2 workers
+tenant-a already at max workers
+tenant-a already at max workers
+tenant-a already at max workers
+tenant-a already at max workers
+tenant-a already at max workers
+tenant-a already at max workers
+tenant-a already at max workers
+tenant-a already at max workers
+...
+Scaling tenant-b to 3 workers
+tenant-a already at max workers
+tenant-a already at max workers
+Scaling tenant-b to 4 workers
+Scaling tenant-b to 3 workers
+Scaling tenant-b to 2 workers
+Scaling tenant-b to 1 workers
+tenant-b at minimum workers, not scaling down
+tenant-b at minimum workers, not scaling down
+tenant-b at minimum workers, not scaling down
+tenant-b at minimum workers, not scaling down
+tenant-a already at max workers
+tenant-a already at max workers
+tenant-a already at max workers
+tenant-b at minimum workers, not scaling down
+tenant-a already at max workers
+tenant-a already at max workers
+Scaling tenant-a to 4 workers
+Scaling tenant-a to 3 workers
+Scaling tenant-a to 2 workers
+
+Logs from monitoring system:
+
+stream-ingest-monitor-1  | Manager notified: tenant-b → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-b (7f2aefa61e20)
+stream-ingest-monitor-1  | Manager notified: tenant-b → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-b (12c290358cce)
+stream-ingest-monitor-1  | Metrics stored for tenant-a (ac7122355095)
+stream-ingest-monitor-1  | Metrics stored for tenant-a (a42d8bccc9ea)
+stream-ingest-monitor-1  | Metrics stored for tenant-a (b4372939b77e)
+stream-ingest-monitor-1  | Metrics stored for tenant-b (962df081704b)
+stream-ingest-monitor-1  | Manager notified: tenant-b → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (669cdd636ea7)
+stream-ingest-monitor-1  | Metrics stored for tenant-a (e553c6d40521)
+stream-ingest-monitor-1  | Metrics stored for tenant-b (12c290358cce)
+stream-ingest-monitor-1  | Manager notified: tenant-b → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (ac7122355095)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_up
+stream-ingest-monitor-1  | Metrics stored for tenant-a (a42d8bccc9ea)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_up
+stream-ingest-monitor-1  | Metrics stored for tenant-a (b4372939b77e)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_up
+stream-ingest-monitor-1  | Metrics stored for tenant-b (962df081704b)
+stream-ingest-monitor-1  | Manager notified: tenant-b → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (669cdd636ea7)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_up
+stream-ingest-monitor-1  | Metrics stored for tenant-a (e553c6d40521)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_up
+stream-ingest-monitor-1  | Metrics stored for tenant-a (ac7122355095)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (669cdd636ea7)
+stream-ingest-monitor-1  | Metrics stored for tenant-a (a42d8bccc9ea)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (b4372939b77e)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-b (962df081704b)
+stream-ingest-monitor-1  | Manager notified: tenant-b → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (669cdd636ea7)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (e553c6d40521)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (e553c6d40521)
+stream-ingest-monitor-1  | Metrics stored for tenant-a (b4372939b77e)
+stream-ingest-monitor-1  | Metrics stored for tenant-a (a42d8bccc9ea)
+stream-ingest-monitor-1  | Metrics stored for tenant-a (ac7122355095)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (a42d8bccc9ea)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-b (962df081704b)
+stream-ingest-monitor-1  | Manager notified: tenant-b → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (ac7122355095)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-b (962df081704b)
+stream-ingest-monitor-1  | Manager notified: tenant-b → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (ac7122355095)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-b (962df081704b)
+stream-ingest-monitor-1  | Manager notified: tenant-b → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-a (ac7122355095)
+stream-ingest-monitor-1  | Manager notified: tenant-a → scale_down
+stream-ingest-monitor-1  | Metrics stored for tenant-b (962df081704b)
+stream-ingest-monitor-1  | Manager notified: tenant-b → scale_down
+
+
+```
 
 ## Part 2 – Silver Data Transformation with Batch Processing
 

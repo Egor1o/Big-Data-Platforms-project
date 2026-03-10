@@ -19,7 +19,6 @@ const stmt = db.prepare(`
 `);
 
 const BATCH_SIZE = 500;
-let batch: any[] = [];
 
 
 const MAY_START = 1430438400; // May 1, 2015 00:00:00 UTC

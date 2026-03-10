@@ -19,7 +19,7 @@ const db = new Client({
     ssl: false,
 });
 
-const SCALE_UP_LATENCY = 10;
+const SCALE_UP_LATENCY = 30;
 const SCALE_DOWN_LATENCY = 5;
 
 async function notifyManager(action: string, tenantId: string) {

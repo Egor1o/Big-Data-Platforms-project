@@ -45,7 +45,7 @@ async function runPipeline(tenantId: string) {
 
 
     if(!canRunPipeline()){
-        console.log(`System under high load (bellow 80% capacity), skipping pipeline run for ${tenantId}`);
+        console.log(`System under high load, skipping pipeline run for ${tenantId}`);
     }
 
     const currentRunning = runningPipelines[tenantId] || 0;
