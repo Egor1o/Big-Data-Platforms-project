@@ -149,8 +149,8 @@ received action, it adjusts the number of worker replicas for the corresponding 
 defined in its configuration - never scales below one worker per tenant and never goes over the maximum number of replicas
 specified in the config.
 
-These are the logs from manager and monitoring system demonstrating workflow depended on the workload. At the start
-scaling up, at the end scaling down.
+These are the logs from manager and monitoring system demonstrating workflow depended on the workload. Scaling up on demand
+and down when not needed anymore. Scaling is dependent on the latency of ingestion process and can be fixed
 
 ```logs
 Logs from manager:
