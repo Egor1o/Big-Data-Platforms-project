@@ -373,7 +373,22 @@ requirements. Additionally, retry policies and idempotent writes can be implemen
 So, I would choose the Kafka-based decoupled solution.
 
 ### 3. Data quality detection and management in near real-time ingestion
+In this case, before the data reaches the tenant-specific streamingestworker, I would introduce an additional
+preprocessing layer that acts as a data quality validator. This component would consume messages from the producer-facing
+Kafka topic and evaluate them according to predefined quality rules.
 
+The validation rules could include schema correctness, required field presence, value ranges, timestamp consistency,
+and other business-specific constraints. Based on these checks, each message would be assigned a quality status 
+(for example: VALID, WARNING, INVALID) or for instancem, a quality score.
+
+Only messages that satisfy the predefined quality threshold would be forwarded to the tenant worker for storage in
+bronze tables. Invalid or low-quality messages could either be discarded or redirected to a separate Kafka topic
+(for example, tenant-<index>-rejected) for further inspection.
+
+I would propose the detected quality information to be stored in the platform-level database (`mysimbdp_platform`) 
+as it is metrics data basically.
+This could be implemented through a dedicated `data_quality_logs` table containing tenant id, message id, timestamp,
+quality score, validation status, and error description if applicable.
 ### 4. Supporting multiple silver pipelines per tenant
 
 ### 5. Redesigning complex silver pipelines for performance and fault tolerance
