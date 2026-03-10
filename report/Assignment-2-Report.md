@@ -291,7 +291,7 @@ The platform supports the following constraint schema for silver pipelines:
 - `max_retries` – maximum number of retry attempts in case of pipeline failure.
 - `backoff_seconds` – waiting time before retrying after a failed execution.
 
-These constraints are validated and enforced by `mysimbdp-batchmanager` before invoking a tenant’s silver pipeline.
+These constraints are validated and enforced by `mysimbdp-batchmanager` and silver pipelines themselves.
 If a pipeline violates its agreement (for example exceeds execution time or parallel execution limit), execution is
 either rejected or forcibly terminated.
 
@@ -300,6 +300,12 @@ metrics. Without limits, one tenant could consume excessive CPU, memory, or data
 other tenants and degrading overall platform performance.
 
 Below are two example tenant configurations:
+
+As the simplest explanation for why Tenant A has a bit more capacity, I would say that it processes a larger number of rows
+per batch, even though the row structure is more or less the same for both tenants. In a real-world scenario, where
+tenants can be very different, we would need to take into account factors such as data size, transformation complexity,
+and computational requirements (for example O(n) behavior of the algorithms). However, in my case the workloads are
+relatively simple, so such advanced differentiation is not necessary.
 
 ### Tenant A
 
