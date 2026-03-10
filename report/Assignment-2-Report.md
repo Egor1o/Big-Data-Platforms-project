@@ -107,6 +107,9 @@ However, I did not observe any significant improvement or degradation in perform
 is much more likely located in the database layer and related to the issues discussed in the first assignment, rather
 than in the Kafka consumer model.
 
+Just to mention, since I use quite similar logic like one in the first assignment, I haven't observed any failures and exceptions
+during ingestion or producing process.
+
 | Tenant     | Ingest Workers | Avg. Throughput (rows/s) | Avg. Throughput (bytes/s)   | Avg. Latency (ms) | P95 Latency (ms) | P99 Latency (ms) |
 |------------|----------------|--------------------------|-----------------------------|-------------------|------------------|------------------|
 | tenant-a   | 1              | 40809                    | 24711461                    | 8.6               | 115.7            | 110.3            |
