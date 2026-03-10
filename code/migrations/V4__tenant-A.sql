@@ -24,4 +24,15 @@ CREATE TABLE IF NOT EXISTS silver_pipeline_state (
   last_processed_id STRING
 );
 
+CREATE TABLE IF NOT EXISTS silver_pipeline_logs (
+   tenant_id STRING,
+   pipeline_name STRING,
+   started_at TIMESTAMPTZ,
+   finished_at TIMESTAMPTZ,
+   duration_ms INT,
+   rows_processed INT,
+   status STRING,
+   error STRING
+);
+
 

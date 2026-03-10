@@ -1,4 +1,5 @@
 import { exec } from "child_process";
+import os from "os";
 
 const CHECK_INTERVAL_MS = 10000;
 
@@ -6,7 +7,7 @@ const TENANT_CONFIG: Record<string, {
     max_parallel_runs: number;
 }> = {
     "tenant-a": {
-        max_parallel_runs: 1,
+        max_parallel_runs: 2,
     },
     "tenant-b": {
         max_parallel_runs: 1,
@@ -28,10 +29,24 @@ function execAsync(cmd: string) {
         });
     });
 }
+function canRunPipeline(): boolean {
+    const load = os.loadavg()[0] ?? 100000;
+    const cpuCount = os.cpus().length;
+    const ratio = load / cpuCount;
+
+    console.log(`CPU load ratio: ${ratio.toFixed(2)}`);
+
+    return ratio < 1.2;
+}
 
 async function runPipeline(tenantId: string) {
     const config = TENANT_CONFIG[tenantId];
     if (!config) return;
+
+
+    if(!canRunPipeline()){
+        console.log(`System under high load (bellow 80% capacity), skipping pipeline run for ${tenantId}`);
+    }
 
     const currentRunning = runningPipelines[tenantId] || 0;
 

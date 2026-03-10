@@ -247,9 +247,80 @@ queues, or CPU and memory tracking, it is sufficient to demonstrate the concept 
 coordinating tenant-specific silver pipelines within a multi-tenant big data platform.
 
 ### 4. Testing, constraint validation, and performance evaluation
+Since I am using predefined datasets for both tenants, this can be considered realistic test data. For basic testing
+purposes, mostly to verify that the project is up and running correctly, I provide a `sample.sql` file containing a
+few megabytes of data. This allows quick validation of the system. But besides that, I perform testing on the original
+dataset of approximately 30 GB of Reddit comments in order to evaluate performance under heavy workload.
+
+Based on the constraints defined in section 2.1, there are several situations in which the silver pipeline will not be
+executed. The first case is when the maximum number of allowed parallel silver pipelines for a tenant has already been
+reached. In this case, the batch manager skips execution. The second situation occurs when the processing time exceeds
+the allowed execution time - in such a case, the pipeline is terminated according to its constraint configuration.
+The third case is when a tenant is not registered in the system. Currently tenants are hardcoded, but in a proper
+production design this would be handled through a dynamic registration mechanism.
+
+Additionally, I have introduced a CPU load check to ensure that the system load remains below a defined threshold before
+launching a silver pipeline. The goal is to prevent the system from becoming overloaded and to always leave some capacity
+for monitoring and management components, especially since in my setup all components run in the same environment.
+I monitor the load ratio relative to total core capacity. If the load ratio is greater than 1, it means that, on average,
+each core is overloaded, a value of 2.0 shows huge overload. Therefore, I allow silver pipeline execution
+only when the load ratio is below 1.2, otherwise, execution is rejected.
+
+Regarding storage performance, tests were performed using local disk for `tenant-caching-dir`, which provides fast file
+read/write and lower execution time. Since the batch files are written and read immediately during transformation, local disk
+minimizes latency and allows the pipeline to process large batches efficiently, even though
+the trade-off is usage of the system space and resources.
+
+In contrast, using cloud storage introduces additional network latency and variability in response time. Every write
+and read operation must go through the network stack, which increases overall pipeline duration. This effect becomes
+more noticeable with larger batch sizes, since bigger JSON files require more time to upload and download.
+
+From an architectural perspective, cloud storage provides better scalability and durability, especially in distributed
+deployments where compute nodes may not share the same filesystem. However, it comes at the cost of increased latency.
+Therefore, the choice between local disk and cloud storage depends on the trade-off between performance and scalability.
+In my local setup, where all components run in the same environment, local disk clearly is simplier and better option.
+
+| Tenant   | Total Runs | Total Rows Processed | Avg Duration (ms) | P95 Duration (ms) | P99 Duration (ms) |
+|-----------|------------|----------------------|-------------------|-------------------|-----------------|
+| tenant-a  | 29         | 26346000             | 24600             | 61000             |71700            |
+| tenant-b  | 57         | 27156500             | 16500             | 42000             |57000            |
 
 ### 5. Logging and observability for silver data transformation
+For the logs, I have added the `silver_pipeline_logs` table into the metrics-specific database `mysimbdp_platform`.
+This was done in order not to mix tenant-specific data with silver pipeline metrics. As required in the task, the logs
+stored for the pipeline operations contain the start and end time, duration of execution, size of the processed batch
+(rows_processed), pipeline name together with the tenant id, and the status of the operation.
 
+mysimbdp could use this information in several ways. First of all, it can be used for monitoring and detecting bottlenecks,
+as performance can be connected to specific tenants. Some tenants may require more processing capacity, and this
+monitoring data can support such decisions.
+
+Since both successful and failed executions are stored, and as mentioned in 2.4 batches are cached by execution time, it
+is always possible to locate a failed cached batch in JSON format. Because the cached data is human-readable, it can be
+directly used for debugging and investigation.
+
+For analytics, this information is also important. It allows evaluation of how expensive certain transformations are and
+how large the processed data volumes are per tenant. By aggregating the logged durations and processed rows (as shown
+in the table bellow), it is possible to derive simple statistics for individual tenants and for the whole platform,
+such as average execution time and total processed rows.
+
+Below are examples of collected logs.
+
+| ID                                   | Tenant    | Pipeline                 | Started At                  | Finished At                 | Duration (ms) | Rows Processed | Status  |
+|---------------------------------------|-----------|--------------------------|-----------------------------|-----------------------------|---------------|----------------|---------|
+| 0f1e9d73-8a94-4e38-9122-416071313b69 | tenant-b  | tenant-b-controversy     | 2026-03-10 10:42:30.627+00 | 2026-03-10 10:43:09.775+00 | 39,148        | 500,000        | SUCCESS |
+| 12a5c2f8-43c4-4af7-9b5d-b386463c2c66 | tenant-a  | tenant-a-engagement      | 2026-03-10 10:41:30.53+00  | 2026-03-10 10:42:39.025+00 | 68,495        | 1,000,000      | SUCCESS |
+| 1945ec81-bff0-431d-bbd7-9ace9b48f12d | tenant-a  | tenant-a-engagement      | 2026-03-10 10:40:10.77+00  | 2026-03-10 10:41:23.68+00  | 72,910        | 1,000,000      | SUCCESS |
+| 1ba609e5-ed72-4980-ac8c-1407f2f56ed6 | tenant-a  | tenant-a-engagement      | 2026-03-10 10:42:40.281+00 | 2026-03-10 10:43:25.936+00 | 45,655        | 1,000,000      | SUCCESS |
+| 1e93ada0-5204-4a23-83ce-f6eb2bc18b94 | tenant-b  | tenant-b-controversy     | 2026-03-10 10:43:20.334+00 | 2026-03-10 10:43:39.984+00 | 19,650        | 500,000        | SUCCESS |
+| 3a1f440f-8a09-41b0-ac27-e0806174e803 | tenant-a  | tenant-a-engagement      | 2026-03-10 10:27:51.291+00 | 2026-03-10 10:27:51.317+00 | 26            | 0              | SUCCESS |
+| 45f251ab-db7b-4d51-9fd1-b82031f11db9 | tenant-b  | tenant-b-controversy     | 2026-03-10 10:35:03.325+00 | 2026-03-10 10:35:59.035+00 | 55,710        | 500,000        | SUCCESS |
+| 4d7d9144-f2de-44df-a1ec-283cd5167e34 | tenant-b  | tenant-b-controversy     | 2026-03-10 10:43:50.198+00 | 2026-03-10 10:44:08.68+00  | 18,482        | 500,000        | SUCCESS |
+| 4ec2a7af-010f-453a-8e5c-7de88e30f03a | tenant-a  | tenant-a-engagement      | 2026-03-10 10:37:06.353+00 | 2026-03-10 10:37:43.25+00  | 36,897        | 1,000,000      | SUCCESS |
+| 828f1429-1952-4dd1-8af0-069788f8b958 | tenant-a  | tenant-a-engagement      | 2026-03-10 10:43:30.233+00 | 2026-03-10 10:43:53.667+00 | 23,434        | 1,000,000      | SUCCESS |
+| b4fddb72-1c10-44fc-8a17-07e2a03b975f | tenant-b  | tenant-b-controversy     | 2026-03-10 10:28:11.269+00 | 2026-03-10 10:28:11.281+00 | 12            | 0              | SUCCESS |
+| ede273b6-cd66-47d8-b169-56711dc3de59 | tenant-b  | tenant-b-controversy     | 2026-03-10 10:41:25.004+00 | 2026-03-10 10:42:22.717+00 | 57,713        | 500,000        | SUCCESS |
+| f817cf94-f2b2-4f7b-bd83-39c19a638dfc | tenant-b  | tenant-b-controversy     | 2026-03-10 10:40:30.413+00 | 2026-03-10 10:41:23.506+00 | 53,093        | 500,000        | SUCCESS |
 
 ## Part 3 – Integration and Extension
 
