@@ -401,6 +401,10 @@ the allowed execution time - in such a case, the pipeline is terminated accordin
 The third case is when a tenant is not registered in the system. Currently tenants are hardcoded, but in a proper
 production design this would be handled through a dynamic registration mechanism.
 
+For more code-specific details, see the tenant-specific pipeline implementations. In short, when execution fails, the 
+process terminates with exit status 1. If an error occurs, the error message is printed to the console. This allows 
+integration with external logging or monitoring systems in the future, if needed.
+
 Additionally, I have introduced a CPU load check to ensure that the system load remains below a defined threshold before
 launching a silver pipeline. The goal is to prevent the system from becoming overloaded and to always leave some capacity
 for monitoring and management components, especially since in my setup all components run in the same environment.
