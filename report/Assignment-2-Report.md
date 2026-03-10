@@ -574,5 +574,4 @@ without re-reading bronze data. Similarly, extraction failures do not corrupt tr
 From a maintenance perspective, splitting the pipeline makes the codebase cleaner. Each component has a single
 responsibility and can evolve independently.
 
-Also, this design allows future improvements such as distributed batch processing, prioritization of certain batches,
-or even offloading transformation to another compute environment.
+Also, this design allows future improvements such as distributed batch processing or prioritization of certain batches
