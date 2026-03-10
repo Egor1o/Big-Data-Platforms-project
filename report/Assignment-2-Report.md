@@ -354,9 +354,6 @@ For the tenant-a implementation, the pipeline collects engagement metrics per su
 total ups, total downs, average score, and engagement ratio. For tenant-b, the pipeline analyzes controversy by
 subreddit, calculating the total number of controversial comments and the average controversiality value.
 
-This design satisfies the requirement that silverpipeline extracts bronze data, stores intermediate results in
-tenant-caching-dir, transforms cached data, and produces silver outputs while operating under platform-controlled execution.
-
 ### 3. Design and implementation of mysimbdp-batchmanager
 Batchmanager is indeed a black-box launcher in the full meaning of this word. It is implemented as a continuously running
 service that periodically attempts to execute tenant silver pipelines. The configuration for tenants is currently
