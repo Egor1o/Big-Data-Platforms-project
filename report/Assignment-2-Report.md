@@ -63,6 +63,14 @@ on the manager level already.
 By default I configured manager so that it can be used as a starting point of the application that starts 1 worker for
 each tenant, and further just listens for the monitor service.
 
+In order for a tenant to develop a streamingestworker compatible with mysimbdp-streamingestmanager, the worker must follow
+a predefined contract. It must rely on environment variables for configuration (such as `TENANT_ID` and `DATABASE_URL`),
+listen to the correct Kafka topic following the platform naming convention, and periodically send ingestion metrics to the monitoring topic.
+
+Additionally, the worker must support graceful shutdown and remain stateless (except for Kafka-managed offsets) so that
+scaling up or down does not cause inconsistencies. By following this contract, the manager can treat the worker as a blackbox
+component.
+
 
 ### 3. Implementation of streamingestworker for multiple tenants and performance evaluation
 Even though I have already implemented the monitoring system and the manager, I will test the system without the manager
