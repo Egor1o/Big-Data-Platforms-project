@@ -83,10 +83,10 @@ To create a topic manually (for example, if you want to test adding a worker for
   --replication-factor <number>
 ```
 
-### Cluster's monitoring
+## Cluster's monitoring
 When your CockroachDB cluster is up, you can see the state of one here: http://localhost:8080/#/overview/list
 
-### Grafana setup
+## Grafana setup
 
 After Grafana is up, you need to add a new data source.
 Go to http://localhost:3000, login with admin/admin,
@@ -175,3 +175,28 @@ ORDER BY 1;
 ```
 
 Notice that sample dataset is very small and your Grafana logs ill be very short. It is intentional.
+
+
+## Silver Pipelines query to analyze performance
+Change time range and tenant name to appropriate ones.
+```sql
+WITH params AS (
+    SELECT
+        '2026-03-10 10:30:00+00'::timestamptz AS start_ts,
+        '2026-03-10 11:10:00+00'::timestamptz AS end_ts
+)
+SELECT
+    tenant_id,
+    COUNT(*) AS total_runs,
+    SUM(rows_processed) AS total_rows_processed,
+    AVG(duration_ms) AS avg_duration_ms,
+    percentile_cont(0.95)
+        WITHIN GROUP (ORDER BY duration_ms::FLOAT) AS p95_duration_ms,
+    percentile_cont(0.99)
+        WITHIN GROUP (ORDER BY duration_ms::FLOAT) AS p99_duration_ms
+FROM mysimbdp_platform.silver_pipeline_logs
+    CROSS JOIN params p
+WHERE started_at BETWEEN p.start_ts AND p.end_ts
+  AND tenant_id = 'tenant-b'
+GROUP BY tenant_id;
+```
