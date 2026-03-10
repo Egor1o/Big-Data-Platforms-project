@@ -361,6 +361,10 @@ hardcoded in the manager as a simple object that defines the maximum number of p
 In a more advanced implementation, this configuration could be stored in a database and dynamically managed, but for the
 purposes of this assignment a static configuration is sufficient.
 
+The list of available silverpipelines is derived from the batch manager configuration object, which acts as a simple pipeline
+registry. Each tenant is associated with a corresponding silver service (e.g., `tenant-a-silver`, `tenant-b-silver`).
+The manager constructs the execution command dynamically based on the tenant id and invokes the appropriate container.
+
 Batch manager maintains in-memory state that tracks the number of currently running pipelines per tenant. Before launching
 a new pipeline, it checks whether the number of running pipelines has reached the configured `max_parallel_runs` limit.
 If the limit has not been reached, the manager executes the corresponding silver pipeline as a separate process using
@@ -370,7 +374,7 @@ pipelines has been reached and skips execution for that tenant.
 The silver pipelines are treated strictly as blackbox executables. The batch manager does not inspect or interact with
 their internal logic. It simply starts the pipeline container and waits for it to finish. The pipeline itself is
 responsible for exiting with the appropriate status code, allowing the manager to determine whether
-execution was successful or failed.
+execution was successful or failed. 
 
 Scheduling is implemented using a simple interval-based mechanism. Every 10 seconds, the batch manager iterates over the
 configured tenants and attempts to launch their silver pipelines. If there is no new bronze data to process, the pipeline
@@ -380,8 +384,8 @@ The enforcement of constraints is divided between the batch manager and the pipe
 `max_parallel_runs` constraint and controls when pipelines are launched. Execution time limits and retry policies are
 validated inside the pipeline implementation itself.
 
-While this design is simplified and does not include advanced features such as dynamic resource monitoring, priority
-queues, or CPU and memory tracking, it is sufficient to demonstrate the concept of a batch manager and its role in
+While this design is simplified and does not include advanced features such as dynamic complete resource monitoring, priority
+queues, or memory tracking, it is sufficient to demonstrate the concept of a batch manager and its role in
 coordinating tenant-specific silver pipelines within a multi-tenant big data platform.
 
 ### 4. Testing, constraint validation, and performance evaluation
