@@ -355,8 +355,22 @@ Since execution status is stored, failed runs and constraint violations are also
 
 ![Screenshot 2026-03-10 at 13.51.29.png](Screenshot%202026-03-10%20at%2013.51.29.png)
 
-
 ### 2. Supporting multiple data sinks in streaming ingestion
+The simplest approach would be to extend the existing streamingestworker so that, after validating and mapping the
+message, it writes the same data to both sinks sequentially. In this design, the worker becomes responsible for dual
+writes. However, this tightly couples both sinks together. If one sink becomes slow or unavailable, it may block the
+other one and negatively affect ingestion performance.
+
+A more robust solution would be to decouple the sinks using Kafka. After consuming the original tenant-bronze topic,
+the streamingestworker could publish the validated message to an additional Kafka topic (for example, tenant-<index>-validated).
+Separate dedicated consumers would then write to mysimbdp-coredms and mybdp-extradatasink independently. This ensures fault
+isolation — if one sink fails, the other continues processing without impact.
+
+Since in my implementation Kafka is already heavily used, the decoupled approach is natural and appropriate. This design
+also allows more flexible scaling, as each sink can be scaled independently based on its workload and performance
+requirements. Additionally, retry policies and idempotent writes can be implemented separately for each sink.
+
+So, I would choose the Kafka-based decoupled solution.
 
 ### 3. Data quality detection and management in near real-time ingestion
 
