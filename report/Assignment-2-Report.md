@@ -389,6 +389,7 @@ I would propose the detected quality information to be stored in the platform-le
 as it is metrics data basically.
 This could be implemented through a dedicated `data_quality_logs` table containing tenant id, message id, timestamp,
 quality score, validation status, and error description if applicable.
+
 ### 4. Supporting multiple silver pipelines per tenant
 I already have a design that supports scaling of different pipeline executions and includes basic monitoring mechanisms
 (for example CPU load checks). The batchmanager, which is responsible for launching pipelines, currently has a hardcoded
@@ -409,3 +410,23 @@ In the future, instead of using a custom Docker-based manager, a more advanced o
 control over resource allocation and automatic scaling based on workload characteristics.
 
 ### 5. Redesigning complex silver pipelines for performance and fault tolerance
+I would recommend splitting the pipeline into two separate components.
+
+The first component would be responsible only for extraction and preparation. Its task would be to read bronze data,
+create properly structured batch files in `tenant-caching-dir`, and update the checkpoint. It would not perform any heavy
+transformation logic. This stage could focus on efficient data access and batch creation.
+
+The second component would be responsible only for transformation. It would read prepared batch files from the caching
+directory and perform the analytics logic, writing results into silver tables. Since this stage
+operates only on files, it becomes fully decoupled from the database read layer.
+
+This separation improves performance because both stages can be scaled independently. For example, extraction could run
+less frequently but produce multiple batches, while transformation could run in parallel for different batch files. It
+also improves fault management since - if transformation fails, the prepared batch file remains in the cache and can be retried
+without re-reading bronze data. Similarly, extraction failures do not corrupt transformation logic.
+
+From a maintenance perspective, splitting the pipeline makes the codebase cleaner. Each component has a single
+responsibility and can evolve independently.
+
+Also, this design allows future improvements such as distributed batch processing, prioritization of certain batches,
+or even offloading transformation to another compute environment.
