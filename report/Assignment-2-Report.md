@@ -390,5 +390,22 @@ as it is metrics data basically.
 This could be implemented through a dedicated `data_quality_logs` table containing tenant id, message id, timestamp,
 quality score, validation status, and error description if applicable.
 ### 4. Supporting multiple silver pipelines per tenant
+I already have a design that supports scaling of different pipeline executions and includes basic monitoring mechanisms
+(for example CPU load checks). The batchmanager, which is responsible for launching pipelines, currently has a hardcoded
+configuration defining which pipelines can be executed and how many parallel runs are allowed. The manager executes
+Docker Compose commands to run the pipelines as separate processes.
+
+To support multiple silver pipelines per tenant, each with different workloads and service agreements, I would extend
+this design by introducing a configuration layer stored in the platform database instead of using a hardcoded
+configuration. This configuration would define, per tenant and per pipeline, parameters such as maximum parallel
+executions, execution time limits, batch size limits, and possibly resource requirements (CPU, memory).
+
+The batchmanager would then dynamically read this configuration and schedule pipelines accordingly. For example,
+a lightweight transformation pipeline could be allowed to run multiple times in parallel, while a complex feature
+engineering pipeline could be restricted to a single execution due to higher CPU and memory usage.
+
+In the future, instead of using a custom Docker-based manager, a more advanced orchestration mechanism
+(such as Kubernetes jobs or a task queue with priority support) could be introduced. This would allow more precise
+control over resource allocation and automatic scaling based on workload characteristics.
 
 ### 5. Redesigning complex silver pipelines for performance and fault tolerance
