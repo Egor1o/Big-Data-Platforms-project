@@ -326,6 +326,36 @@ Below are examples of collected logs.
 
 ### 1. Integrated architecture for logging and monitoring
 
+The system starts from Producers (tenants A and B), which generate data and send it to Kafka topics (`tenant-<index>-bronze`).
+Each tenant has its own dedicated bronze topic. Tenant-specific workers consume messages from Kafka and write validated
+data into tenant bronze tables.
+
+During ingestion, each streamingestworker aggregates performance metrics over a fixed interval (10 seconds).
+These metrics include number of processed rows, total bytes, and average batch latency. The worker sends this
+report to a Kafka monitoring queue. The monitoring system consumes these messages and stores them in the
+`ingest_metrics` table in the `mysimbdp_platform` database. Based on these metrics, scaling requests can be
+generated and sent to the manager via a dedicated Kafka scaling queue. The manager consumes these requests and
+scales ingestion workers accordingly.
+
+For the batch layer, the mysimbdp-batchmanager periodically triggers tenant-specific silver pipelines. Each silver
+pipeline reads data from the tenant bronze table using the last processed id, extracts a batch, caches it in
+`tenant-caching-dir`, performs transformation, and writes the processed results into the tenant silver tables.
+
+After each execution, the silver pipeline reports its run metadata (start time, finish time, duration, rows processed,
+execution status, error if any) into the `silver_pipeline_logs` table inside the same `mysimbdp_platform` database.
+This keeps transformation metrics separated from tenant business data while still allowing centralized monitoring.
+
+From the platform provider’s perspective, the amount of data ingested per tenant can be obtained by aggregating
+`rows_inserted` and `ingestion_bytes` from the `ingest_metrics` table. Performance metrics such as average latency,
+P95 and P99 percentiles are calculated directly using SQL queries.
+
+Similarly, the amount of data processed during silver transformation is obtained from `silver_pipeline_logs` by aggregating
+`rows_processed`. Execution duration statistics allow identification of heavier tenants or more expensive transformations.
+Since execution status is stored, failed runs and constraint violations are also visible.
+
+![Screenshot 2026-03-10 at 13.51.29.png](Screenshot%202026-03-10%20at%2013.51.29.png)
+
+
 ### 2. Supporting multiple data sinks in streaming ingestion
 
 ### 3. Data quality detection and management in near real-time ingestion
