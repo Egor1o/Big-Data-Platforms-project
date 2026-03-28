@@ -54,6 +54,39 @@ complexity, which is not necessary for this scenario. At-most-once delivery is n
 in data loss and incorrect analytics results.
 
 ### 3. Time semantics, windowing, and out-of-order handling
+The time range of the datasetis from the beginning of May 2015 to the end of May 2015. Each comment record contains
+a `created_utc` field, which represents the timestamp of when the comment was created. As mentioned previously, these
+timestamps are used as the event time and serve as the basis for assigning events to time windows in the streaming
+analytics process.
+
+For my test case, I use tumbling windows of 3 minutes. This choice is mainly influenced by the fact that I stream data
+directly from a database rather than from a real-time source. In such a setup, there is a higher likelihood that events
+may arrive slightly delayed relative to their original timestamps. By increasing the window size, I reduce the
+probability of events falling outside their intended windows, which helps to avoid creating too many small windows
+and reduces system complexity and resource usage. In a real-world system with properly distributed producers and lower
+latency, smaller window sizes would be more appropriate.
+
+The system uses event time (`created_utc`) as the primary time reference for processing. If the data source did not contain
+timestamps, a possible solution would be to assign timestamps at ingestion time (processing time). However, this would
+reduce accuracy, as the processing time does not reflect when the event actually occurred.
+
+Out-of-order data records may occur in several situations. One possible cause is lack of key-based partitioning, where
+events related to the same subreddit are distributed across multiple partitions and processed independently, potentially
+breaking ordering guarantees. Another cause is limited processing capacity, where the stream processing application
+cannot keep up with the incoming data rate. In such cases, events may be delayed and arrive after their corresponding
+window has already been closed. Additionally, network latency or batching effects in the producer may also contribute
+to delayed event delivery.
+
+To handle such situations, watermarks are required. In this system, a watermark introduces a small delay (for example,
+10 seconds) before a window is finalized, allowing late-arriving events to still be included in the correct window. This
+is particularly important in my setup, where the dataset is large (around 30 GB) and streamed from a database, which may
+introduce uneven ingestion rates.
+
+While it is possible to design a more complex system that reprocesses late events or updates previous results (for
+example, by issuing correction updates to the database), such approaches increase system complexity. In this implementation,
+I assume that a small percentage of late or dropped events is acceptable. For example, processing approximately 95% of
+the data correctly is sufficient for the purpose of real-time analytics, where slight inaccuracies are often acceptable
+in exchange for lower latency and simpler system design.
 
 ### 4. Performance metrics for streamanalyticsapp
 
