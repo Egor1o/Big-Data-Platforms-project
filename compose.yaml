@@ -94,7 +94,7 @@ services:
 
 
   producer-a:
-    build: code/producer
+    build: code_assignment_2/producer
     volumes:
       - ./data:/data:ro
     environment:
@@ -103,7 +103,7 @@ services:
       - cockroach-1
 
   producer-b:
-    build: code/producer
+    build: code_assignment_2/producer
     volumes:
       - ./data:/data:ro
     environment:
@@ -112,7 +112,7 @@ services:
       - cockroach-1
 
   tenant-a-worker:
-    build: code/tenants/tenant-a
+    build: code_assignment_2/tenants/tenant-a
     environment:
       - TENANT_ID=tenant-a
       - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
@@ -120,7 +120,7 @@ services:
       - cockroach-1
 
   tenant-a-silver:
-    build: code/tenants/tenant-a
+    build: code_assignment_2/tenants/tenant-a
     command: npm run silver
     environment:
       - DATABASE_URL=postgresql://root@cockroach-1:26257/tenanta?sslmode=disable
@@ -128,7 +128,7 @@ services:
       - cockroach-1
 
   stream-ingest-monitor:
-    build: code/stream-ingest-monitor
+    build: code_assignment_2/stream-ingest-monitor
     environment:
       - DATABASE_URL=postgresql://root@cockroach-1:26257/mysimbdp_platform?sslmode=disable
     depends_on:
@@ -136,7 +136,7 @@ services:
       - cockroach-1
 
   tenant-b-worker:
-    build: code/tenants/tenant-b
+    build: code_assignment_2/tenants/tenant-b
     environment:
       - DATABASE_URL=postgresql://root@cockroach-1:26257/reddit?sslmode=disable
       - TENANT_ID=tenant-b
@@ -144,7 +144,7 @@ services:
       - cockroach-1
 
   tenant-b-silver:
-    build: code/tenants/tenant-b
+    build: code_assignment_2/tenants/tenant-b
     command: npm run silver
     environment:
       - DATABASE_URL=postgresql://root@cockroach-1:26257/tenantb?sslmode=disable
