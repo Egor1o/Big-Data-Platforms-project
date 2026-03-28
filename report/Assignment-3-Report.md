@@ -33,8 +33,25 @@ window time range, tenant identifier, and aggregated metrics. The API layer vali
 mysimbdp-coredms (CockroachDB), which acts as the data sink for storing streaming analytics results. This enables
 further analysis, monitoring, and visualization of the processed data.
 
-
 ### 2. Messaging system design, data streams, and delivery guarantees
+In this scenario, the streaming analytics should handle keyed data streams. Each event (comment) contains a subreddit
+field, which is used as the key. This allows grouping events by subreddit and performing aggregations such as counting
+the number of comments per subreddit within a time window. Using keyed streams ensures that all events related to the
+same subreddit are processed together, which is necessary for correct analytics results. Otherwise, if for instance we
+would not use keys, messages would be distributed between partitions and then not processed correctly by consumers. 
+It also aligns well with Kafka’s partitioning model, where messages with the same key are routed to the same partition,
+enabling scalable and ordered processing.
+
+Using non-keyed streams would not be suitable in this case, since the analytics require grouping and aggregation.
+Without a key, events would be processed independently, making it impossible to compute metrics such as subreddit
+activity or detect trends.
+
+Regarding message delivery guarantees, the most suitable choice for this scenario is at-least-once delivery. This
+ensures that no data is lost, which is critical for analytics correctness. While this approach may introduce duplicate
+messages, the impact is minimal in this use case, as small inaccuracies in aggregated counts are acceptable compared
+to the risk of missing data. Exactly-once delivery would provide stronger guarantees but introduces additional
+complexity, which is not necessary for this scenario. At-most-once delivery is not suitable, as it may result
+in data loss and incorrect analytics results.
 
 ### 3. Time semantics, windowing, and out-of-order handling
 
