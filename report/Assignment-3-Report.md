@@ -89,6 +89,20 @@ the data correctly is sufficient for the purpose of real-time analytics, where s
 in exchange for lower latency and simpler system design.
 
 ### 4. Performance metrics for streamanalyticsapp
+**Throughput** is the number of events processed per second. It can be measured by counting consumed Kafka messages over
+time. It is important to ensure the system can keep up with incoming data.
+
+**Processing latency** is the time between consuming a message and completing its processing. It can be measured using
+timestamps in the stream application. This helps identify performance bottlenecks.
+
+**End-to-end latency** is the time from when an event is created (created_utc) until the aggregated result is stored in
+mysimbdp-coredms. It shows how quickly insights become available.
+
+**Window processing delay** is the time between window end and when results are stored, including watermark delay. It
+helps evaluate how timely the analytics results are.
+
+**Dropped event rate** measures how many events are skipped (e.g., late events beyond watermark). It can be tracked via
+logs. This is important for understanding data accuracy.
 
 ### 5. Architecture design for streaming analytics
 
