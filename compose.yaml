@@ -92,6 +92,18 @@ services:
     depends_on:
       - cockroach-1
 
+  producer:
+    build: ./code/producer
+    container_name: producer
+    environment:
+      - KAFKA_BROKER=kafka:9092
+      - TENANT_TOPIC=stream-tenant-a
+    volumes:
+      - ./data:/data:ro
+    depends_on:
+      - kafka
+
+
 
 #  producer-a:
 #    build: code_assignment_2/producer
