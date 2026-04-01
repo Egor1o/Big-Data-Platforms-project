@@ -38,7 +38,7 @@ Therefore, open the Kafka terminal (with a running Kafka instance) and navigate 
 ```shell
 docker exec -it -w /opt/kafka/bin kafka bash
 ```
-
+docker compose up producer --build
 To create a topic manually (for example, if you want to test adding a worker for another tenant), run:
 ```sh
 ./kafka-topics.sh \
@@ -71,71 +71,24 @@ then go to Data Sources -> Add data source -> PostgreSQL.
 After that, got to ad visualization -> Time series and use the following queries:
 Also set interval to 5s (or to other preferred intervals.)
 
+### DB aggregation
+1. Access correct db: 
+```sql
+USE streamanalytics;
+```
+3. Specific subbreddit:
+```sql
+SELECT *
+FROM subreddit_window_stats
+WHERE subreddit = 'gaming'
+ORDER BY window_start DESC;
+```
 
-Grafana queris:
-1. For rows inserted over time (throughput) – tenant-a:
+2. Aggregation:
 ```sql
-SELECT
-    $__timeGroupAlias(ts, '10s'),
-    SUM(rows_inserted) AS rowsInsertedA
-FROM mysimbdp_platform.ingest_metrics
-WHERE $__timeFilter(ts)
-  AND tenant_id = 'tenant-a'
-GROUP BY 1
-ORDER BY 1;
-```
-2. For rows inserted over time (throughput) – tenant-b:
-```sql
-SELECT
-$__timeGroupAlias(ts, '10s'),
-SUM(rows_inserted) AS rowsInsertedB
-FROM mysimbdp_platform.ingest_metrics
-WHERE $__timeFilter(ts)
-AND tenant_id = 'tenant-b'
-GROUP BY 1
-ORDER BY 1;
-```
-3. For average batch latency over time (response time) – tenant-a:
-```sql
-SELECT
-  $__timeGroupAlias(ts, '10s'),
-  AVG(avg_batch_latency_ms) AS 
-FROM mysimbdp_platform.ingest_metrics
-WHERE $__timeFilter(ts)
-  AND tenant_id = 'tenant-a'
-GROUP BY 1
-ORDER BY 1;
-```
-4. For average batch latency over time (response time) – tenant-b:
-```sql
-SELECT
-  $__timeGroupAlias(ts, '10s'),
-  AVG(avg_batch_latency_ms) AS value
-FROM mysimbdp_platform.ingest_metrics
-WHERE $__timeFilter(ts)
-  AND tenant_id = 'tenant-b'
-GROUP BY 1
-ORDER BY 1;
-```
-5. For rows read over time (throughput) – tenant-a:
-```sql
-SELECT
-  $__timeGroupAlias(ts, '10s'),
-  SUM(rows_returned) AS value
-FROM mysimbdp_platform.consume_metrics
-WHERE $__timeFilter(ts)
-  AND tenant_id = 'tenant-a'
-GROUP BY 1
-ORDER BY 1;
-```
-6. For rows read over time (throughput) – tenant-b:
-```sql
-SELECT
-  $__timeGroupAlias(ts, '10s'),
-  SUM(rows_returned) AS value
-FROM mysimbdp_platform.consume_metrics
-WHERE $__timeFilter(ts)
-  AND tenant_id = 'tenant-b'
-GROUP BY 1
-ORDER BY 1;
+SELECT subreddit, SUM(comment_count) AS total_comments
+FROM subreddit_window_stats
+GROUP BY subreddit
+ORDER BY total_comments DESC
+LIMIT 10;
 ```

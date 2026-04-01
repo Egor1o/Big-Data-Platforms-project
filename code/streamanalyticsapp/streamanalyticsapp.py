@@ -31,7 +31,6 @@ cur = conn.cursor()
 # ---------------- HELPERS ----------------
 def parse(value):
     try:
-        # ✅ handle BOTH cases (string OR dict)
         if isinstance(value, str):
             data = json.loads(value)
         elif isinstance(value, dict):
@@ -41,7 +40,8 @@ def parse(value):
 
         return {
             "subreddit": data.get("subreddit"),
-            "created_utc": data.get("created_utc")
+            "created_utc": data.get("created_utc"),
+            "count": 1
         }
 
     except Exception as e:
@@ -58,10 +58,11 @@ def set_ts(value, key, timestamp, headers):
 # ---------------- WINDOW HANDLER ----------------
 def handle_window(row):
     try:
-        count = row["value"]
+        # ✅ FIX: correct structure
+        value = row["value"]
 
-        # fallback-safe subreddit extraction
-        subreddit = row.get("subreddit", "unknown")
+        subreddit = value["subreddit"]
+        count = value["count"]
 
         window_start = datetime.fromtimestamp(row["start"] / 1000)
         window_end = datetime.fromtimestamp(row["end"] / 1000)
@@ -103,7 +104,16 @@ def handle_window(row):
 
     .tumbling_window(timedelta(seconds=5))
 
-    .count()
+    .reduce(
+        lambda acc, x: {
+            "subreddit": x.get("subreddit", acc.get("subreddit")),
+            "count": acc.get("count", 0) + x.get("count", 1)
+        },
+        lambda x: {
+            "subreddit": x.get("subreddit"),
+            "count": x.get("count", 1)
+        }
+    )
 
     .final()
 

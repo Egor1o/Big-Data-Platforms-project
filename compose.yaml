@@ -103,6 +103,19 @@ services:
     depends_on:
       - kafka
 
+  stream-analytics:
+    image: python:3.11
+    container_name: stream-analytics
+    working_dir: /app
+    volumes:
+      - ./code/streamanalyticsapp:/app
+    command: >
+      sh -c "pip install quixstreams psycopg2-binary &&
+             python streamanalyticsapp.py"
+    depends_on:
+      - kafka
+      - cockroach-1
+
 
 
 #  producer-a:
