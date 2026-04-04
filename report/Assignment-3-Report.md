@@ -157,8 +157,36 @@ Overall, the test environment allows reproducible testing of the streaming analy
 of system behavior under different data rates and configurations.
 
 ### 3. Execution results and performance evaluation
+Here first of all I introduce briefly logs.
+This is how adding instance to the window in streaming looks like:
+```shell
+stream-analytics  | 📊 SubredditDrama | 1 | 2015-05-01 03:01:15 - 2015-05-01 03:01:20
+stream-analytics  | 📊 Art | 1 | 2015-05-01 03:01:10 - 2015-05-01 03:01:15
+```
+This is how the skipping window looks like (window is already closed):
+```shell
+stream-analytics  | [2026-04-04 09:54:11,117] [WARNING] [quixstreams] : Skipping window processing for the closed window timestamp_ms=1430443298000 window=(1430443295000, 1430443300000) late_by_ms=48716000 store_name=tumbling_window_5000_reduce partition=repartition__analytics-group--stream-tenant-a--subreddit[1] offset=161772
+stream-analytics  | [2026-04-04 09:54:11,117] [WARNING] [quixstreams] : Skipping window processing for the closed window timestamp_ms=1430443307000 window=(1430443305000, 1430443310000) late_by_ms=48527000 store_name=tumbling_window_5000_reduce partition=repartition__analytics-group--stream-tenant-a--subreddit[1] offset=161773
+```
+During the operation, the streamanalytcsapp processes (parses) messages coming from batch the producer sent. Streamer
+groups messages by subreddit and aggregates them accordingly. For the tests I will use smaller time windows, because
+in order to get more recent metrics. It helps with defining on how the system preforms immediately rather than
+only after an interval. I will use 5 seconds windows, which I understand would be irrelevant for my usage case in
+the real world scenario.
+
+Naturally the speed of the workflow is affected by the batch size the producer sends. Running the producer with the size
+of 500 on average. Stream analytics was able to proceed 75446 comments over 5 first minutes. Here is important to mention
+that there are much more comments actually processed, but they are skipped, they coming late since their volume is too big.
+
+Please notice that these tests were run with 1 streamanalyticsapp instance, since the question 5 is the one asking about
+parallelism. I will show the results on parallel execution there. Since in my config I have 10 partitions and in the current
+test the whole power of those is not utilized.
 
 ### 4. Handling erroneous data records
+First of all, there is no need to emulate erroneous data, because the dataset itself contains some malformed records, 
+which allows testing the system's robustness without introducing artificial errors. For example, some records may have missing
+fields, invalid timestamps, or incorrect data overall.
+
 In this implementation, erroneous data is handled during parsing, filtering, and database operations. Each incoming
 message is first processed by the parse function, where it is deserialized using json.loads. If the message is malformed
 or cannot be parsed, an exception is caught and the function returns None. In such cases, a log message is printed,
@@ -201,7 +229,23 @@ Overall, the integration introduces an additional processing step after window a
 streamanalyticsapp acts as a bridge between the streaming pipeline and the external ML service.
 
 ### 2. Handling and storing erroneous records for further inspection
+For that, I would first introduce a new table in the database, for example `stream_analytics_errors`, which would store
+erroneous records. This table would contain fields such as the source of the record, timestamp, error message, batch
+identifier, and possibly additional metadata. This allows all invalid or unprocessable records to be persisted
+instead of being discarded.
 
+In the streamanalyticsapp, error handling would be integrated into the parsing and validation stages. When a record
+fails to be parsed or is missing required fields (such as `subreddit` or `created_utc`), instead of simply filtering it
+out, the application would capture the original message along with the reason for failure. This information would
+then be written into the stream_analytics_errors table.
+
+Additionally, since Quix Streams maintains state through tumbling windows, it is possible to correlate erroneous
+records with specific windows or time intervals. This makes debugging easier, as one can trace when and under which
+conditions errors occurred.
+
+To extend this further, an API layer could be introduced that provides access to both valid aggregated results and
+stored erroneous records. This would allow another application or service to inspect, analyze, or even reprocess
+failed records if needed.
 ### 3. Workflow orchestration for triggering batch analytics and notifications
 
 ### 4. Schema evolution handling and detection
