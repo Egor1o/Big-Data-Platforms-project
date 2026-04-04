@@ -121,4 +121,5 @@ def handle_window(row):
 )
 
 # ---------------- RUN ----------------
+app.clear_state()
 app.run()
