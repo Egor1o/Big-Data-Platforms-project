@@ -182,6 +182,23 @@ while valid data continues to be processed and stored correctly.
 ## Part 3 – Extension
 
 ### 1. Integration of external ML inference service
+It would be quite easy to integrate it with the current implementation. When the window is closed, it currently
+triggers an insert operation into the database, but this can be extended to also send the aggregated results to an
+external RESTful service. This can be implemented as an additional step inside the handle_window function, where
+instead of only writing to CockroachDB, the system sends a batch of processed records to the external service
+using an HTTP request.
+
+The external service would accept the aggregated data, perform ML inference (for example anomaly detection or trend
+prediction), and return the results. These results could then be stored back into mysimbdp-coredms or forwarded to
+the tenant for further use.
+
+From the tenant perspective, they would need to define what kind of inference they require and provide the endpoint
+of the external service. The tenant could configure the streamanalyticsapp to send specific aggregated data to this
+service. This means that the tenant is responsible for ensuring that the input schema of the analytics results
+matches the expected input of the ML service.
+
+Overall, the integration introduces an additional processing step after window aggregation, where the
+streamanalyticsapp acts as a bridge between the streaming pipeline and the external ML service.
 
 ### 2. Handling and storing erroneous records for further inspection
 
