@@ -28,6 +28,7 @@ When a window is closed, the application groups and aggregates the events within
 the number of comments per subreddit to identify the most active subreddits during that time interval. The aggregated
 results represent a summarized view of the streaming data.
 
+//TODO fix this
 After the window is finalized, the results are sent via a REST API to an analytics endpoint. The message includes the
 window time range, tenant identifier, and aggregated metrics. The API layer validates the data and inserts it into
 mysimbdp-coredms (CockroachDB), which acts as the data sink for storing streaming analytics results. This enables
@@ -109,6 +110,31 @@ logs. This is important for understanding data accuracy.
 ## Part 2 – Implementation of Streaming Analytics
 
 ### 1. Implementation of streamanalyticsapp (schemas, serialization, processing logic, real-time output)
+In my implementation, the streamanalyticsapp processes Reddit comments sent as JSON messages through Kafka. The input
+data schema is defined in the producer the same way it was done in 2 previous assignments,
+where each message contains fields such as subreddit and created_utc. In the stream
+processing application, the data is simplified into a smaller schema containing only subreddit, created_utc, and a
+counter (count = 1) to reduce complexity and focus on aggregation. (check `subreddit_window_stats` migration)
+
+The output schema is defined in mysimbdp-coredms (CockroachDB), where results are stored in the subreddit_window_stats
+table. Each record contains the tenant ID, subreddit, window start and end timestamps, and the aggregated comment count.
+
+The input schema mostly matches the original row schema from the database, which makes the system more robust
+and avoids additional transformations. For the output schema, I have chosen a simpler design. Instead of storing
+each message individually, the system stores aggregated results, which reduces storage requirements, improves
+read performance, and is sufficient for analytics purposes.
+
+For serialization, JSON is used. The producer serializes messages using JSON.stringify, and the streamanalyticsapp
+deserializes them using json.loads. JSON is chosen because it is simple and compatible across different languages
+used in the system.
+
+The processing logic is implemented using Quix Streams. Incoming messages are parsed and filtered to remove invalid records.
+Event time is assigned using the created_utc field. The stream is grouped by subreddit (keyed stream), and a tumbling window
+is applied like discussed above. Within each window, a reduce function aggregates the number of comments per subreddit.
+The aggregation is stateful and maintained until the window is closed.
+
+The results are produced when the window is finalized and then written to CockroachDB. This provides near real-time analytics,
+where results are available after each window closes. The latency depends on the window size and allowed delay for late events.
 
 ### 2. Test environment and setup
 
