@@ -137,10 +137,45 @@ The results are produced when the window is finalized and then written to Cockro
 where results are available after each window closes. The latency depends on the window size and allowed delay for late events.
 
 ### 2. Test environment and setup
+I explained the environment sufficiently already in the part one, but to summarize,
+since the dataset is static, streaming behavior is emulated by reading records from a SQLite database and sending
+them to Kafka in timestamp order (created_utc). The producer sends messages in batches (batch size = 500), 
+which simulates continuous data ingestion with controllable speed.
+
+The mysimbdp platform in this setup consists of several components. Kafka is used as the messaging system, with a
+single broker and a topic (stream-tenant-a) for tenant data. The streamanalyticsapp is implemented using Quix Streams
+in Python and runs as a consumer with a defined consumer group. It processes messages using event-time semantics and
+tumbling windows. CockroachDB is used as mysimbdp-coredms for storing analytics results, with tables for aggregated
+results and monitoring metrics.
+
+The components are connected as follows: the producer reads data from SQLite and sends it to Kafka, the
+streamanalyticsapp consumes and processes the data, and the results are stored in CockroachDB. The system is
+configured with parameters such as batch size (500), window size (5 seconds), Kafka broker address, and topic name.
+These parameters can be adjusted to test different streaming conditions.
+
+Overall, the test environment allows reproducible testing of the streaming analytics pipeline and enables evaluation
+of system behavior under different data rates and configurations.
 
 ### 3. Execution results and performance evaluation
 
 ### 4. Handling erroneous data records
+In this implementation, erroneous data is handled during parsing, filtering, and database operations. Each incoming
+message is first processed by the parse function, where it is deserialized using json.loads. If the message is malformed
+or cannot be parsed, an exception is caught and the function returns None. In such cases, a log message is printed,
+but the application continues running without interruption.
+
+After parsing, a filter is applied to remove invalid records. Messages that are None or do not contain a valid subreddit
+field are discarded before further processing. This ensures that only valid data is passed to grouping and
+aggregation stages.
+
+For timestamp handling, if the created_utc field is missing, the system falls back to the default Kafka timestamp.
+This allows the record to still be processed, although the accuracy of event-time processing is reduced.
+
+During aggregation and database insertion, errors are handled using a try-except block in the handle_window function.
+If a database error occurs, it is logged, and the system continues processing subsequent records.
+
+Overall, erroneous data does not interrupt the streaming application. Invalid records are skipped early in the pipeline,
+while valid data continues to be processed and stored correctly.
 
 ### 5. Parallelism, scalability, and performance analysis
 
