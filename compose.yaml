@@ -105,7 +105,6 @@ services:
 
   stream-analytics:
     image: python:3.11
-    container_name: stream-analytics
     working_dir: /app
     volumes:
       - ./code/streamanalyticsapp:/app

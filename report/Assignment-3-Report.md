@@ -103,7 +103,8 @@ mysimbdp-coredms. It shows how quickly insights become available.
 helps evaluate how timely the analytics results are.
 
 **Dropped event rate** measures how many events are skipped (e.g., late events beyond watermark). It can be tracked via
-logs. This is important for understanding data accuracy.
+logs. This is important for understanding data accuracy. (I do not introduce log tracer, so I assume in the real world
+scenario this could be stored via logs)
 
 ### 5. Architecture design for streaming analytics
 
@@ -206,6 +207,33 @@ Overall, erroneous data does not interrupt the streaming application. Invalid re
 while valid data continues to be processed and stored correctly.
 
 ### 5. Parallelism, scalability, and performance analysis
+Since key-based partitioning is used in the system, it is possible to utilize parallelism in streaming. More precisely,
+since the stream is keyed by subreddit, messages with the same subreddit are routed to the same partition in Kafka.
+This allows different partitions to be processed independently by multiple instances of the streamanalyticsapp,
+enabling parallel processing.
+
+The main factors affecting parallelism in this setup are the number of Kafka partitions, the number of streamanalyticsapp
+instances (consumers), and the key distribution across partitions. The degree of parallelism is limited by the number
+of partitions, since each partition can be consumed by only one instance within the same consumer group. Therefore,
+increasing the number of instances without increasing partitions does not improve performance.
+
+In the test environment, I evaluated performance with different numbers of instances. With a single streamanalyticsapp
+instance, the system processed approximately 75,000 comments. When increasing to 5 instances, the system processed
+around 311,323 comments, which is roughly 4 times higher throughput. This demonstrates that parallelism significantly
+improves performance when multiple consumers process different partitions concurrently.
+
+Further scaling was tested with 10 instances and 20 partitions. In this configuration, the system processed
+approximately 416,948 comments, which is about 5.5 times higher than the single-instance setup. However, the performance
+gain is not linear, as increasing the number of instances introduces additional overhead.
+
+One observed issue is that a higher degree of parallelism leads to more late or outdated messages. This is partly due to
+the producer sending messages in large batches, which is faster than the aggregation and window processing performed by
+the streamanalyticsapp. As a result, some messages arrive too late and are skipped because their corresponding windows
+are already closed.
+
+Additionally, higher parallelism increases coordination overhead, such as Kafka partition assignment, state management,
+and database writes. The database may also become a bottleneck when multiple instances attempt to write results
+concurrently.
 
 ## Part 3 – Extension
 
