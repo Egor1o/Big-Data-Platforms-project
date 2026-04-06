@@ -169,19 +169,29 @@ This is how the skipping window looks like (window is already closed):
 stream-analytics  | [2026-04-04 09:54:11,117] [WARNING] [quixstreams] : Skipping window processing for the closed window timestamp_ms=1430443298000 window=(1430443295000, 1430443300000) late_by_ms=48716000 store_name=tumbling_window_5000_reduce partition=repartition__analytics-group--stream-tenant-a--subreddit[1] offset=161772
 stream-analytics  | [2026-04-04 09:54:11,117] [WARNING] [quixstreams] : Skipping window processing for the closed window timestamp_ms=1430443307000 window=(1430443305000, 1430443310000) late_by_ms=48527000 store_name=tumbling_window_5000_reduce partition=repartition__analytics-group--stream-tenant-a--subreddit[1] offset=161773
 ```
-During the operation, the streamanalytcsapp processes (parses) messages coming from batch the producer sent. Streamer
-groups messages by subreddit and aggregates them accordingly. For the tests I will use smaller time windows, because
-in order to get more recent metrics. It helps with defining on how the system preforms immediately rather than
-only after an interval. I will use 5 seconds windows, which I understand would be irrelevant for my usage case in
-the real world scenario.
+During operation, the streamanalyticsapp parses incoming messages from the producer, groups them by subreddit, and
+aggregates them within windows. For testing purposes, I use smaller window sizes (5 seconds) in order to observe system
+behavior more frequently and get faster feedback. While such window sizes are not realistic for a production scenario,
+they are useful for testing and evaluation.
 
-Naturally the speed of the workflow is affected by the batch size the producer sends. Running the producer with the size
-of 500 on average. Stream analytics was able to proceed 75446 comments over 5 first minutes. Here is important to mention
-that there are much more comments actually processed, but they are skipped, they coming late since their volume is too big.
+The speed of the system is affected by the batch size used by the producer. With a batch size of 500, the
+system processed approximately 75,446 comments during the first 5 minutes. It is important to note that a significantly
+larger number of messages were actually sent, but many of them were skipped because they arrived too late relative to
+their event time.
 
-Please notice that these tests were run with 1 streamanalyticsapp instance, since the question 5 is the one asking about
-parallelism. I will show the results on parallel execution there. Since in my config I have 10 partitions and in the current
-test the whole power of those is not utilized.
+These tests were executed with a single instance of streamanalyticsapp. Since the Kafka topic is configured with 10
+partitions, the available parallelism is not fully utilized in this setup. The effect of parallel execution is analyzed
+in Part 5.
+
+When varying the speed of streaming data, increasing the ingestion rate leads to higher throughput but also increases
+the number of late events. This happens because the producer can send messages faster than the stream processing
+application can aggregate and process them. As a result, more records fall outside their corresponding windows and
+are skipped.
+
+Regarding window function parameters, increasing the window size would reduce the number of skipped events and increase
+the number of processed comments per window (but it will not propagate any different results). However, this would also increase the delay before results are produced.
+In this test environment, since the data is artificially streamed from a static dataset, such changes do not fully
+reflect real-world performance. Therefore, I focus more on analyzing the impact of parallelism in the following section.
 
 ### 4. Handling erroneous data records
 First of all, there is no need to emulate erroneous data, because the dataset itself contains some malformed records, 

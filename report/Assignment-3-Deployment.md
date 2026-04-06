@@ -17,11 +17,6 @@ docker exec -it roach-1 ./cockroach init --insecure
 docker compose up flyway
 ```
 
-4. (Optional) Get Grafana up (check set up instructions bellow):
-```sh
-docker compose up -d grafana
-```
-
 4. Start kafka in detached mode:
 ```sh
 docker compose up -d kafka --build
@@ -32,13 +27,23 @@ docker compose up -d kafka --build
 docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic stream-tenant-a --bootstrap-server kafka:9092 --partitions 10 --replication-factor 1
 ```
 
+6. Start the producer
+```shell
+docker compose up producer --build
+```
+
+7. Start streamers (change amount of replicas if needed. 1 by default):
+```shell
+docker compose up --build --scale stream-analytics=1 stream-analytics;
+ 1170
+```
+
 ## Apache Kafka
 If you want to run Kafka, please note that the Docker-related .sh files are located in /opt/kafka/bin.
 Therefore, open the Kafka terminal (with a running Kafka instance) and navigate there:
 ```shell
 docker exec -it -w /opt/kafka/bin kafka bash
 ```
-docker compose up producer --build
 To create a topic manually (for example, if you want to test adding a worker for another tenant), run:
 ```sh
 ./kafka-topics.sh \
@@ -51,25 +56,6 @@ To create a topic manually (for example, if you want to test adding a worker for
 
 ## Cluster's monitoring
 When your CockroachDB cluster is up, you can see the state of one here: http://localhost:8080/#/overview/list
-
-## Grafana setup
-
-After Grafana is up, you need to add a new data source.
-Go to http://localhost:3000, login with admin/admin,
-then go to Data Sources -> Add data source -> PostgreSQL.
-
-| Setting | Value |
-|---------|-------|
-| **Default Login** | admin / admin |
-| **Host** | cockroach-1:26257 |
-| **Database** | mysimbdp_platform |
-| **User** | root |
-| **Password** | (leave empty) |
-| **SSL Mode** | disable |
-| **PostgreSQL Version** | 12+ |
-
-After that, got to ad visualization -> Time series and use the following queries:
-Also set interval to 5s (or to other preferred intervals.)
 
 ### DB aggregation
 1. Access correct db: 
@@ -91,4 +77,12 @@ FROM subreddit_window_stats
 GROUP BY subreddit
 ORDER BY total_comments DESC
 LIMIT 10;
+```
+3. Time range:
+```sql
+SELECT
+SUM(comment_count) AS total_comments
+FROM subreddit_window_stats
+WHERE created_at >= '2026-04-04 10:28:00'
+AND created_at <= '2026-04-04 10:33:00';
 ```
