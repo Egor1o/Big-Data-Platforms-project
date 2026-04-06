@@ -286,7 +286,26 @@ stored erroneous records. This would allow another application or service to ins
 failed records if needed.
 
 ### 3. Workflow orchestration for triggering batch analytics and notifications
+In this scenario, a tenant service receives streaming analytics results and detects a critical condition, such as a
+sudden spike in activity. When a critical condition is detected, the tenant service triggers a workflow using a 
+workflow engine (for example, Apache Airflow or a similar orchestration tool). The workflow consists of several
+steps executed in sequence.
 
+Before going to the workflow itself, I find it important to distinguish a separate layer in the form of a tenant-defined
+API service that decides the workflow execution. This allows adding more flexibility and enables handling critical
+conditions in a more specific and controlled way.
+
+First, the workflow starts a batch analytics job that queries historical data stored in mysimbdp-coredms (CockroachDB).
+This job performs deeper analysis, such as identifying long-term trends or anomalies that cannot be detected in real-time
+streaming.
+
+After the batch analytics job is completed, the results are stored in a cloud storage service (for example, an object
+storage bucket). This allows the results to be accessed later and shared across different services.
+
+In parallel, the workflow triggers a notification step. A notification service sends a message to the tenant user, for
+example via email or a messaging system, informing them that the batch analytics results are available in cloud storage.
+
+![workflow.png](workflow.png)
 
 ### 4. Schema evolution handling and detection
 In my opinion, the best practice would be to have a specific set of parameters that the tenant can provide via a JSON
