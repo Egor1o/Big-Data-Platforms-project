@@ -246,8 +246,25 @@ conditions errors occurred.
 To extend this further, an API layer could be introduced that provides access to both valid aggregated results and
 stored erroneous records. This would allow another application or service to inspect, analyze, or even reprocess
 failed records if needed.
+
 ### 3. Workflow orchestration for triggering batch analytics and notifications
 
+
 ### 4. Schema evolution handling and detection
+In my opinion, the best practice would be to have a specific set of parameters that the tenant can provide via a JSON
+configuration. This configuration would define validation rules, required fields, and data types. The configuration can
+be stored either in a database or in a cloud storage bucket, which is more scalable. The streamanalyticsapp can then
+load the configuration dynamically based on the tenant ID and keep it in memory during runtime.
+
+For validation, a flexible function can be implemented that transforms the JSON configuration into validation rules,
+similar to schema validation libraries such as Zod.
+
+To ensure that the running streamanalyticsapp does not process data with a wrong schema, strict validation is applied
+before processing. If incoming data does not match the expected schema, it is rejected or redirected for further inspection.
+
+To detect schema changes, schema versioning can be introduced. Each schema configuration would include a version
+identifier. When new data arrives, its schema version can be compared with the expected version. If a mismatch is detected,
+the system can log an error or notify the developer. Additionally, validation failures themselves can act as an indicator
+of schema changes, signaling that incoming data no longer matches the expected format.
 
 ### 5. End-to-end exactly-once delivery
