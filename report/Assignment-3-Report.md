@@ -268,3 +268,18 @@ the system can log an error or notify the developer. Additionally, validation fa
 of schema changes, signaling that incoming data no longer matches the expected format.
 
 ### 5. End-to-end exactly-once delivery
+In the current implementation, it is not possible to guarantee end-to-end exactly-once delivery. The system is 
+configured with at-least-once processing semantics, which means that messages may be processed more than once in
+case of failures or restarts.
+
+The main limitation comes from the interaction between Kafka, the stream processing application, and the database.
+While Kafka and stream processing frameworks can support exactly-once processing under certain configurations, the
+database writes in this implementation are not idempotent. Each window result is inserted into CockroachDB without
+checking for duplicates, so if a failure occurs after processing but before committing offsets, the same data may
+be written again.
+
+To achieve end-to-end exactly-once delivery, several changes would be required. First, idempotent writes or upsert
+operations should be used in the database, ensuring that duplicate results do not create inconsistent data. Second,
+transactional guarantees should be enabled in the streaming framework and Kafka, so that message consumption and
+result production are coordinated atomically. Additionally, proper checkpointing and state management must be ensured
+so that the system can recover without reprocessing already committed data.
