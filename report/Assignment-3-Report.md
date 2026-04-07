@@ -107,6 +107,28 @@ logs. This is important for understanding data accuracy. (I do not introduce log
 scenario this could be stored via logs)
 
 ### 5. Architecture design for streaming analytics
+The tenant data source is based on a static Reddit dataset stored in SQLite. A producer service reads this data and 
+sends it as a stream of events to Kafka. Kafka acts as the messaging system of mysimbdp, ensuring scalable and reliable
+data ingestion. Messages are partitioned based on the subreddit key, enabling parallel processing.
+
+The streamanalyticsapp is implemented using Quix Streams, which serves as the streaming framework/engine. It consumes
+data from Kafka, processes it using event-time semantics and tumbling windows, and performs aggregations such as
+counting comments per subreddit.
+
+The results of the analytics are always ingested into mysimbdp-coredms, which is implemented using CockroachDB.
+This ensures persistent storage and allows further querying and analysis of processed data.
+
+Under certain conditions, the results could also be sent back to the tenant in near real-time. In this implementation,
+this is simplified by storing results directly in the database, which the tenant can access. A more advanced system
+could extend this by introducing a separate API layer like the one mentioned in part 3, but I will not provide it here.
+
+From a reusability perspective, several components from previous assignments are reused. The mysimbdp-coredms
+(CockroachDB) remains unchanged and continues to serve as the storage layer. The producer component is also reused
+for streaming data generation. Additionally, the Kafka configuration from the previous assignment is reused as the
+messaging system. The streamanalyticsapp itself is a new component, implemented using Quix Streams, which is
+well-suited due to its native Kafka support.
+![system.png](system.png)
+
 
 ## Part 2 – Implementation of Streaming Analytics
 
